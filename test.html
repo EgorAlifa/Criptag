@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modulus Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            padding: 20px;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            color: #1e1b4b;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f5f7ff;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.125rem;
+            color: #1e1b4b;
+        }
+
+        .error {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h2>Калькулятор для подсчета mod</h2>
+            <p class="subtitle">Эффективно поможет с 1 заданием по криптографии</p>
+        </div>
+        <div class="input-group">
+            <input type="text" id="expression" placeholder="Введите формата (e.g., 2^17 mod 19)">
+            <div id="error" class="error"></div>
+        </div>
+        <button onclick="calculateExpression()">Посчитать</button>
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function modularExponentiation(base, exp, mod) {
+            let result = 1;
+            base = base % mod;
+            while (exp > 0) {
+                if (exp % 2 === 1) {
+                    result = (result * base) % mod;
+                }
+                exp = Math.floor(exp / 2);
+                base = (base * base) % mod;
+            }
+            return result;
+        }
+
+        function calculateExpression() {
+            const expressionInput = document.getElementById('expression');
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+            
+            try {
+                const expression = expressionInput.value;
+                const parts = expression.split('mod');
+                
+                if (parts.length !== 2) {
+                    throw new Error('Invalid format');
+                }
+
+                const baseExp = parts[0].split('^');
+                let base, exp, mod;
+
+                if (baseExp.length === 2) {
+                    base = parseInt(baseExp[0].trim());
+                    exp = parseInt(baseExp[1].trim());
+                } else {
+                    base = parseInt(parts[0].trim());
+                    exp = 1;
+                }
+                
+                mod = parseInt(parts[1].trim());
+
+                if (isNaN(base) || isNaN(exp) || isNaN(mod)) {
+                    throw new Error('Invalid numbers');
+                }
+
+                const result = modularExponentiation(base, exp, mod);
+                resultDiv.textContent = `Result: ${result}`;
+                resultDiv.style.display = 'block';
+                errorDiv.textContent = '';
+                
+            } catch (err) {
+                errorDiv.textContent = 'Please enter a valid expression (e.g., 2^17 mod 19)';
+                resultDiv.style.display = 'none';
+            }
+        }
+
+        // Add keyboard support
+        document.getElementById('expression').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateExpression();
+            }
+        });
+    </script>
+</body>
+</html>
