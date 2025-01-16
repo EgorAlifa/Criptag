@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator Tasks</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            color: #1e1b4b;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .task-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        .task-header {
+            color: #1e1b4b;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .task-content {
+            min-height: 200px;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        .calculator input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+            margin-bottom: 1rem;
+        }
+
+        .calculator input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .calculator button {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calculator button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .calculator .error {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .solution-steps {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            white-space: pre-wrap;
+            font-family: monospace;
+            line-height: 1.5;
+            display: none;
+        }
+        .solution-steps1 {
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            white-space: normal;
+            font-family: monospace;
+            line-height: 1.5;
+        }
+        .input-row {
+            gap: 1rem;
+        }
+
+        .select-input {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .label-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        /* Ensure inputs and labels are properly aligned */
+        .input-row label {
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .input-row input,
+        .input-row select {
+            height: 2.25rem; /* Ensure consistent height */
+            box-sizing: border-box;
+        }
+
+        .placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .tasks-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Calculator Tasks</h1>
+        
+        <div class="tasks-grid">
+            <!-- Task 1: Modulus Calculator -->
+            <div class="task-card">
+                <h2 class="task-header">Задание № 1 криптографии </h2>
+                <div class="task-content calculator">
+                    <div class="input-group">
+                        <label>Введите исходное y формата (2^x mod 19)</label>
+                        <input type="text" id="expression" placeholder="Enter base^x mod m (e.g., 2^x mod 19)">
+                    </div>
+                    <div class="input-group">
+                        <label>XA value</label>
+                        <input type="number" id="xa" placeholder="Enter XA value">
+                    </div>
+                    <div class="input-group">
+                        <label>XB value</label>
+                        <input type="number" id="xb" placeholder="Enter XB value">
+                    </div>
+                    <button onclick="calculateWithSteps()">Calculate</button>
+                    <div id="error" class="error"></div>
+                    <div id="solution-steps" class="solution-steps"></div>
+                </div>
+            </div>
+
+            <!-- Task 2 Placeholder -->
+           <div class="task-card">
+                <h2 class="task-header">Task 2: RSA Key Generation</h2>
+                <div class="task-content calculator">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>p value</label>
+                            <input type="number" id="p-value" placeholder="e.g., 3" class="small-input">
+                        </div>
+                        <div class="input-group">
+                            <label>q value</label>
+                            <input type="number" id="q-value" placeholder="e.g., 11" class="small-input">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>m value (comma-separated)</label>
+                        <input type="text" id="m-value" placeholder="e.g., 5,5,4" class="small-input">
+                    </div>
+                    <button onclick="calculateRSA()">Calculate</button>
+                    <div id="rsa-error" class="error"></div>
+                    <div id="rsa-solution" class="solution-steps"></div>
+                </div>
+            </div>
+
+            <!-- Task 3 Placeholder -->
+            <div class="task-card">
+                <h2 class="task-header">Task 3: Решение задачи о ранце кодирования степеней 2 (решает случай для 3, 4, 5 чисел)</h2>
+                <div class="task-content calculator">
+                    <div class="input-row">
+                        <div class="label-group">
+                            <label>Выберите индекс</label>
+                            <select id="a-index" class="select-input">
+                                <option value="0">a₀</option>
+                                <option value="1">a₁</option>
+                                <option value="2">a₂</option>
+                                <option value="3">a₃</option>
+                                <option value="4">a₄</option>
+                            </select>
+                        </div>
+                        <div class="label-group">
+                            <label>Введите значение</label>
+                            <input type="number" id="a-value" placeholder="Например: 90106" class="small-input">
+                        </div>
+                    </div>
+                    <div class="label-group">
+                        <label>Резервное сообщение M (5 бит):</label>
+                        <input type="text" id="backup-m" placeholder="Введите 5-битное сообщение (например, 10001)" class="small-input">
+                    </div>
+                    <button onclick="calculateKnapsack()">Calculate</button>
+                    <div id="knapsack-error" class="error"></div>
+                    <div id="knapsack-solution" class="solution-steps"></div>
+                </div>
+            </div>
+
+
+            <!-- Task 4 Placeholder -->
+            <div class="task-card">
+                <h2 class="task-header">Task 4: Решение задачи о ранце кодирования степеней 5 (решает случай для 3, 4, 5 чисел)</h2>
+                <div class="task-content calculator">
+                    <div class="input-row">
+                        <div class="label-group">
+                            <label>Выберите индекс</label>
+                            <select id="a-index-5" class="select-input">
+                                <option value="0">a₀</option>
+                                <option value="1">a₁</option>
+                                <option value="2">a₂</option>
+                                <option value="3">a₃</option>
+                                <option value="4">a₄</option>
+                            </select>
+                        </div>
+                        <div class="label-group">
+                            <label>Введите значение</label>
+                            <input type="number" id="a-value-5" placeholder="Например: 90106" class="small-input">
+                        </div>
+                    </div>
+                    <div class="label-group">
+                        <label>Резервное сообщение M (5 бит):</label>
+                        <input type="text" id="backup-m-5" placeholder="Введите 5-битное сообщение (например, 10001)" class="small-input">
+                    </div>
+                    <button onclick="calculateKnapsackFor5()">Calculate</button>
+                    <div id="knapsack-error-5" class="error"></div>
+                    <div id="knapsack-solution-5" class="solution-steps"></div>
+                </div>
+            </div>
+
+            <!-- Task 5 Placeholder -->
+            <div class="task-card">
+                <h2 class="task-header">Task 5: Многопользовательская криптосистема RSA</h2>
+                <div class="task-content calculator">
+                    <button id="rsa-generate-btn" onclick="generateRSAExample()">Generate Example</button>
+                    <!-- Уникальный контейнер для результата -->
+                    <div id="rsa-result" class="solution-steps1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function modularExponentiation(base, exp, mod) {
+            let result = 1;
+            base = base % mod;
+            while (exp > 0) {
+                if (exp % 2 === 1) {
+                    result = (result * base) % mod;
+                }
+                exp = Math.floor(exp / 2);
+                base = (base * base) % mod;
+            }
+            return result;
+        }
+
+        function calculateWithSteps() {
+            const expressionInput = document.getElementById('expression');
+            const xaInput = document.getElementById('xa');
+            const xbInput = document.getElementById('xb');
+            const solutionSteps = document.getElementById('solution-steps');
+            const errorDiv = document.getElementById('error');
+            
+            try {
+                const expression = expressionInput.value;
+                const xa = parseInt(xaInput.value);
+                const xb = parseInt(xbInput.value);
+                
+                // Parse base and modulus from expression
+                const matches = expression.match(/(\d+)\^x\s*mod\s*(\d+)/);
+                if (!matches) {
+                    throw new Error('Invalid expression format');
+                }
+
+                const base = parseInt(matches[1]);
+                const mod = parseInt(matches[2]);
+
+                if (isNaN(xa) || isNaN(xb)) {
+                    throw new Error('Please enter valid XA and XB values');
+                }
+
+                // Calculate results and format steps
+                let steps = `Task 1\n`;
+                steps += `1) y = ${base}^x mod ${mod}\n`;
+                steps += `2) XA = ${xa}, XB = ${xb}\n\n`;
+
+                // Calculate yA
+                let yA = modularExponentiation(base, xa, mod);
+                steps += `A: yA = ${base}^${xa} mod ${mod} = ${yA}\n`;
+
+                // Calculate yB
+                let yB = modularExponentiation(base, xb, mod);
+                steps += `B: yB = ${base}^${xb} mod ${mod} = ${yB}\n\n`;
+
+                // Calculate KAB
+                steps += `3) A: yA → B\n`;
+                steps += `   B: yB → A\n\n`;
+
+                // Calculate final key for A
+                let kAB_A = modularExponentiation(yB, xa, mod);
+                steps += `4) A: ${yB}^${xa} mod ${mod} = ${kAB_A}\n`;
+
+                // Calculate final key for B
+                let kAB_B = modularExponentiation(yA, xb, mod);
+                steps += `   B: ${yA}^${xb} mod ${mod} = ${kAB_B}\n\n`;
+
+                steps += `KAB = ${kAB_A}`;
+
+                solutionSteps.textContent = steps;
+                solutionSteps.style.display = 'block';
+                errorDiv.textContent = '';
+                
+            } catch (err) {
+                errorDiv.textContent = err.message || 'Please check your input format';
+                solutionSteps.style.display = 'none';
+            }
+        }
+
+        // Add keyboard support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateWithSteps();
+            }
+        });
+ // Номер 2 начинается тут
+function extendedGCD(a, b) {
+    if (b === 0) {
+        return [a, 1, 0];
+    }
+
+    const [gcd, x1, y1] = extendedGCD(b, a % b);
+    const x = y1;
+    const y = x1 - Math.floor(a / b) * y1;
+
+    return [gcd, x, y];
+}
+
+// Находим d по формуле d * e ≡ 1 (mod φ(N))
+function findD(e, phiN) {
+    const [gcd, x, y] = extendedGCD(e, phiN);
+    if (gcd !== 1) {
+        throw new Error(`Невозможно найти d для e = ${e} и φ(N) = ${phiN}`);
+    }
+    // Приводим результат к положительному числу в диапазоне [1, phiN-1]
+    return (x % phiN + phiN) % phiN;
+}
+
+// Теперь находим e, которое взаимно простое с φ(N)
+function findE(phiN, d) {
+    for (let e = 2; e < phiN; e++) {
+        const [gcd, x, y] = extendedGCD(e, phiN);
+        if (gcd === 1 && (e * d) % phiN === 1) { // Условие для совместимости с найденным d
+            return e;
+        }
+    }
+    throw new Error("Не удалось найти подходящее значение e");
+}
+
+function modPow(base, exp, mod) {
+    let result = 1;
+    base = base % mod;
+    while (exp > 0) {
+        if (exp % 2 === 1) {
+            result = (result * base) % mod;
+        }
+        exp = Math.floor(exp / 2);
+        base = (base * base) % mod;
+    }
+    return result;
+}
+
+function calculateRSA() {
+    const pValue = parseInt(document.getElementById('p-value').value);
+    const qValue = parseInt(document.getElementById('q-value').value);
+    const mValue = document.getElementById('m-value').value;
+    const solution = document.getElementById('rsa-solution');
+    const error = document.getElementById('rsa-error');
+
+    try {
+        if (!pValue || !qValue || !mValue) {
+            throw new Error('Пожалуйста, заполните все поля');
+        }
+
+        const mArray = mValue.split(',').map(x => parseInt(x.trim()));
+        
+        let steps = `Task 2\n`;
+        steps += `14) p = ${pValue}, q = ${qValue}, m = ${mArray.join(',')}\n\n`;
+        
+        // Вычисляем N и φ(N)
+        const N = pValue * qValue;
+        const phiN = (pValue - 1) * (qValue - 1);
+        
+        steps += `a) Формируем PKA и SKA\n`;
+        steps += `N = p·q = ${N}\n`;
+        steps += `φ(N) = (p-1)(q-1) = ${phiN}\n\n`;
+
+        // Находим d (предполагаем его значение, например, 7)
+        const d = findD(7, phiN); // Предполагаем d = 7
+        
+        // Теперь находим e
+        const e = findE(phiN, d);
+
+        steps += `Выбираем e: НОД(e,φ(N)) = 1\n`;
+        steps += `e = ${e}\n`;
+        steps += `Находим d: d·e ≡ 1 (mod φ(N))\n`;
+        steps += `d = ${d}\n\n`;
+
+        steps += `PKA = {${e}, ${N}}\n`;
+        steps += `SKA = ${d}\n\n`;
+
+        // Вычисляем h(m)
+        const hm = mArray.reduce((a, b) => a + b, 0) % 8;
+        steps += `б) A: формирует эл. подпись\n`;
+        steps += `m = ${mArray.join(',')} => h(m) = Σ(${mArray.join('+')}) mod 8 = ${hm}\n`;
+        
+        // Вычисляем подпись
+        let sign = modPow(hm, d, N);
+        
+        steps += `SignA(m) = (h(m))^d mod N\n`;
+        steps += `SignA(m) = ${hm}^${d} mod ${N} = ${sign}\n\n`;
+        
+        steps += `Получается, что отправляем:\n`;
+        steps += `(${mArray.join(',')}, ${sign}) → B\n\n`;
+
+        // Проверяем подпись
+        const verifyResult = modPow(sign, e, N);
+        steps += `в) Проверка подписи:\n`;
+        steps += `   а) h(m') = ${hm}\n`;
+        steps += `   б) (signA)^e mod N = ${verifyResult}\n\n`;
+        
+        if (verifyResult === hm) {
+            steps += `Так как h(m') = h(m) = ${hm} =>\n`;
+            steps += `документ подлинный`;
+        } else {
+            steps += `Подпись недействительна`;
+        }
+
+        solution.textContent = steps;
+        solution.style.display = 'block';
+        error.textContent = '';
+    } catch (err) {
+        error.textContent = err.message;
+        solution.style.display = 'none';
+    }
+}
+ // Номер 3 начинается тут
+
+ function calculateKnapsack() {
+    const selectedIndex = parseInt(document.getElementById('a-index').value);
+    const inputValue = document.getElementById('a-value').value;
+    const backupM = document.getElementById('backup-m').value.trim(); // Получаем резервное сообщение M
+    const solution = document.getElementById('knapsack-solution');
+    const error = document.getElementById('knapsack-error');
+
+    try {
+        if (isNaN(parseInt(inputValue))) {
+            throw new Error('Пожалуйста, введите значение a');
+        }
+
+        if (inputValue.length < 3 || inputValue.length > 5) {
+            throw new Error('Число должно быть длиной 3, 4 или 5 цифр');
+        }
+
+        const isFiveDigit = inputValue.length === 5;
+        const isFourDigit = inputValue.length === 4;
+        const isThreeDigit = inputValue.length === 3;
+
+        // Извлекаем степенную часть в зависимости от длины числа
+        let powerPart;
+        if (isThreeDigit) {
+            powerPart = parseInt(inputValue.substring(1)); // Берем последние 2 цифры
+        } else if (isFourDigit) {
+            powerPart = parseInt(inputValue.substring(0, 2));
+        } else { // Для пятизначных
+            powerPart = parseInt(inputValue.substring(1, 3));
+        }
+
+        const values = new Array(5);
+        values[selectedIndex] = inputValue;
+
+        // Заполняем значения до выбранного индекса (уменьшаем степень двойки)
+        let currentPowerPart = powerPart;
+        for (let i = selectedIndex - 1; i >= 0; i--) {
+            currentPowerPart = Math.max(1, Math.floor(currentPowerPart / 2));
+            if (isThreeDigit) {
+                const randomFirstDigit = Math.floor(1 + Math.random() * 9);
+                values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}`;
+            } else if (isFourDigit) {
+                const randomPart = Math.floor(1 + Math.random() * 99).toString().padStart(2, '0');
+                values[i] = `${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
+            } else {
+                const randomFirstDigit = Math.floor(1 + Math.random() * 9);
+                const randomPart = Math.floor(1 + Math.random() * 99).toString().padStart(2, '0');
+                values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
+            }
+        }
+
+        // Заполняем значения после выбранного индекса (увеличиваем степень двойки)
+        currentPowerPart = powerPart;
+        for (let i = selectedIndex + 1; i < 5; i++) {
+            currentPowerPart = Math.min(64, currentPowerPart * 2);
+            if (isThreeDigit) {
+                const randomFirstDigit = Math.floor(1 + Math.random() * 9);
+                values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}`;
+            } else if (isFourDigit) {
+                const randomPart = Math.floor(1 + Math.random() * 99).toString().padStart(2, '0');
+                values[i] = `${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
+            } else {
+                const randomFirstDigit = Math.floor(1 + Math.random() * 9);
+                const randomPart = Math.floor(1 + Math.random() * 99).toString().padStart(2, '0');
+                values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
+            }
+        }
+
+        const numericValues = values.map(v => parseInt(v, 10));
+        const sum = numericValues.reduce((a, b) => a + b, 0);
+        let T = sum + 1;
+        const R = 66;
+
+        function gcd(a, b) {
+            while (b) {
+                [a, b] = [b, a % b];
+            }
+            return a;
+        }
+
+        while (gcd(R, T) !== 1) {
+            T++;
+        }
+
+        function extendedEuclidean(a, b) {
+            if (b === 0) {
+                return [1, 0, a];
+            }
+            const [x1, y1, gcd] = extendedEuclidean(b, a % b);
+            const x = y1;
+            const y = x1 - Math.floor(a / b) * y1;
+            return [x, y, gcd];
+        }
+
+        const [S, , gcdResult] = extendedEuclidean(R, T);
+        if (gcdResult !== 1) {
+            throw new Error('Невозможно найти мультипликативную инверсию');
+        }
+
+        const adjustedS = (S % T + T) % T;
+        const bValues = numericValues.map(a => (a * R) % T);
+
+        let steps = `Сгенерированные значения a:\n`;
+        values.forEach((a, i) => {
+            steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
+        });
+        steps += `\n1) Найдём R, S, T:\n`;
+        steps += `Σai = ${numericValues.join(' + ')} = ${sum}\n`;
+        steps += `Пусть T = ${T} > Σai = ${sum}\n`;
+        steps += `Пусть R = ${R} < T = ${T}\n`;
+        steps += `Найдём S: RS ≡ 1 (mod T)\n`;
+        steps += `S = ${adjustedS}\n\n`;
+
+        steps += `2) Составим вектор b = a·R mod T:\n`;
+        bValues.forEach((b, i) => {
+            steps += `b${i} = ${numericValues[i]}·${R} mod ${T} = ${b}\n`;
+        });
+        steps += `\nSecret key = (S = ${adjustedS}, T = ${T})\n`;
+        steps += `Public key = b\n`;
+
+        steps += `\n3) Зашифруем сообщение M:\n`;
+
+        let M = '';
+        for (let i = 0; i < 5; i++) {
+            M += Math.round(Math.random());
+        }
+
+        let C2 = 0;
+        for (let i = 0; i < 5; i++) {
+            if (M[i] === '1') {
+                C2 += bValues[i];
+            }
+        }
+
+        steps += `M = ${M}\n`;
+        steps += `C2 = `;
+        let firstTerm = true;
+        for (let i = 0; i < 5; i++) {
+            if (M[i] === '1') {
+                if (!firstTerm) steps += ' + ';
+                steps += `${bValues[i]}`;
+                firstTerm = false;
+            }
+        }
+        steps += ` = ${C2}\n`;
+
+        steps += `\n4) Расшифровка: Проверяем восстановление M с C2 и S\n`;
+
+        let sum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
+        steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
+
+        let recovered_M = '';
+        for (let i = 4; i >= 0; i--) {
+            if (sum_ai >= BigInt(numericValues[i])) {
+                recovered_M = '1' + recovered_M;
+                sum_ai -= BigInt(numericValues[i]);
+                steps += `Вычитаем b${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+            } else {
+                recovered_M = '0' + recovered_M;
+                steps += `b${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+            }
+        }
+
+        steps += `Восстановленное M = ${recovered_M}\n`;
+
+        if (recovered_M === M) {
+            steps += `Дешифрование прошло успешно!\n`;
+        } else {
+            if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
+                M = backupM; // Используем введенное резервное сообщение
+            } else {
+                M = '10001'; // Используем заведомо работающий вариант
+            }
+
+            C2 = 0;
+            for (let i = 0; i < 5; i++) {
+                if (M[i] === '1') {
+                    C2 += bValues[i];
+                }
+            }
+
+            steps += `Попробуем другое сообщение M = ${M}\n`;
+            steps += `C2 = `;
+            firstTerm = true;
+            for (let i = 0; i < 5; i++) {
+                if (M[i] === '1') {
+                    if (!firstTerm) steps += ' + ';
+                    steps += `${bValues[i]}`;
+                    firstTerm = false;
+                }
+            }
+            steps += ` = ${C2}\n`;
+
+            let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
+            steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+
+            sum_ai = newSum_ai;
+            recovered_M = '';
+            for (let i = 4; i >= 0; i--) {
+                if (sum_ai >= BigInt(numericValues[i])) {
+                    recovered_M = '1' + recovered_M;
+                    sum_ai -= BigInt(numericValues[i]);
+                } else {
+                    recovered_M = '0' + recovered_M;
+                }
+            }
+
+            steps += `Восстановленное M = ${recovered_M}\n`;
+        }
+
+        solution.textContent = steps;
+        solution.style.display = 'block';
+        error.textContent = '';
+    } catch (err) {
+        error.textContent = err.message;
+        solution.style.display = 'none';
+    }
+}
+ // Номер 4 начинается тут
+ function calculateKnapsackFor5() {
+    const selectedIndex = parseInt(document.getElementById('a-index-5').value);
+    const inputValue = document.getElementById('a-value-5').value;
+    const backupM = document.getElementById('backup-m-5').value.trim();
+    const solution = document.getElementById('knapsack-solution-5');
+    const error = document.getElementById('knapsack-error-5');
+
+    try {
+        if (isNaN(parseInt(inputValue))) {
+            throw new Error('Пожалуйста, введите значение a');
+        }
+
+        if (inputValue.length < 3 || inputValue.length > 5) {
+            throw new Error('Число должно быть длиной 3, 4 или 5 цифр');
+        }
+
+        const isFiveDigit = inputValue.length === 5;
+        const isFourDigit = inputValue.length === 4;
+        const isThreeDigit = inputValue.length === 3;
+
+        let powerPart;
+        if (isThreeDigit) {
+            powerPart = parseInt(inputValue.substring(1));
+        } else if (isFourDigit) {
+            powerPart = parseInt(inputValue.substring(0, 2));
+        } else {
+            powerPart = parseInt(inputValue.substring(1, 3));
+        }
+
+        const values = new Array(5);
+        values[selectedIndex] = inputValue;
+
+        let currentPowerPart = powerPart;
+        for (let i = selectedIndex - 1; i >= 0; i--) {
+            currentPowerPart = Math.max(1, Math.floor(currentPowerPart / 5)); // Изменено на 5
+            if (isThreeDigit) {
+                const randomFirstDigit = Math.floor(1 + Math.random() * 9);
+                values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}`;
+            } else if (isFourDigit) {
+                const randomPart = Math.floor(1 + Math.random() * 99).toString().padStart(2, '0');
+                values[i] = `${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
+            } else {
+                const randomFirstDigit = Math.floor(1 + Math.random() * 9);
+                const randomPart = Math.floor(1 + Math.random() * 99).toString().padStart(2, '0');
+                values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
+            }
+        }
+
+        currentPowerPart = powerPart;
+        for (let i = selectedIndex + 1; i < 5; i++) {
+            currentPowerPart = Math.min(625, currentPowerPart * 5); // Изменено на 5
+            if (isThreeDigit) {
+                const randomFirstDigit = Math.floor(1 + Math.random() * 9);
+                values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}`;
+            } else if (isFourDigit) {
+                const randomPart = Math.floor(1 + Math.random() * 99).toString().padStart(2, '0');
+                values[i] = `${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
+            } else {
+                const randomFirstDigit = Math.floor(1 + Math.random() * 9);
+                const randomPart = Math.floor(1 + Math.random() * 99).toString().padStart(2, '0');
+                values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
+            }
+        }
+
+        const numericValues = values.map(v => parseInt(v, 10));
+        const sum = numericValues.reduce((a, b) => a + b, 0);
+        let T = sum + 1;
+        const R = 66;
+
+        function gcd(a, b) {
+            while (b) {
+                [a, b] = [b, a % b];
+            }
+            return a;
+        }
+
+        while (gcd(R, T) !== 1) {
+            T++;
+        }
+
+        function extendedEuclidean(a, b) {
+            if (b === 0) {
+                return [1, 0, a];
+            }
+            const [x1, y1, gcd] = extendedEuclidean(b, a % b);
+            const x = y1;
+            const y = x1 - Math.floor(a / b) * y1;
+            return [x, y, gcd];
+        }
+
+        const [S, , gcdResult] = extendedEuclidean(R, T);
+        if (gcdResult !== 1) {
+            throw new Error('Невозможно найти мультипликативную инверсию');
+        }
+
+        const adjustedS = (S % T + T) % T;
+        const bValues = numericValues.map(a => (a * R) % T);
+
+        let steps = `Сгенерированные значения a:\n`;
+        values.forEach((a, i) => {
+            steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
+        });
+        steps += `\n1) Найдём R, S, T:\n`;
+        steps += `Σai = ${numericValues.join(' + ')} = ${sum}\n`;
+        steps += `Пусть T = ${T} > Σai = ${sum}\n`;
+        steps += `Пусть R = ${R} < T = ${T}\n`;
+        steps += `Найдём S: RS ≡ 1 (mod T)\n`;
+        steps += `S = ${adjustedS}\n\n`;
+
+        steps += `2) Составим вектор b = a·R mod T:\n`;
+        bValues.forEach((b, i) => {
+            steps += `b${i} = ${numericValues[i]}·${R} mod ${T} = ${b}\n`;
+        });
+        steps += `\nSecret key = (S = ${adjustedS}, T = ${T})\n`;
+        steps += `Public key = b\n`;
+
+        steps += `\n3) Зашифруем сообщение M:\n`;
+
+        let M = '';
+        for (let i = 0; i < 5; i++) {
+            M += Math.round(Math.random());
+        }
+
+        let C2 = 0;
+        for (let i = 0; i < 5; i++) {
+            if (M[i] === '1') {
+                C2 += bValues[i];
+            }
+        }
+
+        steps += `M = ${M}\n`;
+        steps += `C2 = `;
+        let firstTerm = true;
+        for (let i = 0; i < 5; i++) {
+            if (M[i] === '1') {
+                if (!firstTerm) steps += ' + ';
+                steps += `${bValues[i]}`;
+                firstTerm = false;
+            }
+        }
+        steps += ` = ${C2}\n`;
+
+        steps += `\n4) Расшифровка: Проверяем восстановление M с C2 и S\n`;
+
+        let sum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
+        steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
+
+        let recovered_M = '';
+        for (let i = 4; i >= 0; i--) {
+            if (sum_ai >= BigInt(numericValues[i])) {
+                recovered_M = '1' + recovered_M;
+                sum_ai -= BigInt(numericValues[i]);
+                steps += `Вычитаем b${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+            } else {
+                recovered_M = '0' + recovered_M;
+                steps += `b${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+            }
+        }
+
+        steps += `Восстановленное M = ${recovered_M}\n`;
+
+        if (recovered_M === M) {
+            steps += `Дешифрование прошло успешно!\n`;
+        } else {
+            if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
+                M = backupM;
+            } else {
+                M = '10001';
+            }
+
+            C2 = 0;
+            for (let i = 0; i < 5; i++) {
+                if (M[i] === '1') {
+                    C2 += bValues[i];
+                }
+            }
+
+            steps += `Попробуем другое сообщение M = ${M}\n`;
+            steps += `C2 = `;
+            firstTerm = true;
+            for (let i = 0; i < 5; i++) {
+                if (M[i] === '1') {
+                    if (!firstTerm) steps += ' + ';
+                    steps += `${bValues[i]}`;
+                    firstTerm = false;
+                }
+            }
+            steps += ` = ${C2}\n`;
+
+            let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
+            steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+
+            sum_ai = newSum_ai;
+            recovered_M = '';
+            for (let i = 4; i >= 0; i--) {
+                if (sum_ai >= BigInt(numericValues[i])) {
+                    recovered_M = '1' + recovered_M;
+                    sum_ai -= BigInt(numericValues[i]);
+                } else {
+                    recovered_M = '0' + recovered_M;
+                }
+            }
+
+            steps += `Восстановленное M = ${recovered_M}\n`;
+        }
+
+        solution.textContent = steps;
+        solution.style.display = 'block';
+        error.textContent = '';
+    } catch (err) {
+        error.textContent = err.message;
+        solution.style.display = 'none';
+    }
+}
+ // Номер 5 начинается тут
+ function generateRSAExample() {
+    const rsaResult = document.getElementById('rsa-result');
+    rsaResult.innerHTML = ''; // Очищаем предыдущий результат
+
+    console.log("Кнопка нажата, начинается генерация RSA...");
+
+    try {
+        // Шаг 1: Генерация трех различных простых чисел p, q и r
+        const p = generatePrime();
+        let q = generatePrime();
+        while (q === p) {
+            q = generatePrime(); // Убедимся, что q отличается от p
+        }
+        let r = generatePrime();
+        while (r === p || r === q) {
+            r = generatePrime(); // Убедимся, что r отличается от p и q
+        }
+
+        // Шаг 2: Вычисление модульного произведения N и функции Эйлера φ(N)
+        const N = p * q * r;
+        const phi = (p - 1) * (q - 1) * (r - 1);
+
+        // Шаг 3: Генерация публичных и приватных ключей для двух пользователей
+        const user1Keys = generateRSAKeys(phi);
+        const user2Keys = generateRSAKeys(phi);
+
+        // Шаг 4: Пример сообщения для шифрования
+        const message = Math.floor(Math.random() * 100); // Случайное сообщение
+        const encryptedMessage = modExp(message, user2Keys.publicKey, N); // Зашифрованное сообщение
+        const decryptedMessage = modExp(encryptedMessage, user2Keys.privateKey, N); // Расшифрованное сообщение
+
+        // Описание процесса генерации RSA и примеров использования
+        let steps = `
+        <h3>Пример генерации RSA:</h3>
+        <p><strong>Шаг 1: Выбор простых чисел</strong></p>
+        <p>Для обеспечения безопасности системы выбираются три различных простых числа p, q и r.</p>
+        <p>Выбранные простые числа: p = ${p}, q = ${q}, r = ${r}</p>
+        
+        <p><strong>Шаг 2: Вычисление модуля N и функции Эйлера φ(N)</strong></p>
+        <p>Модуль N является основой для шифрования и вычисляется как произведение выбранных простых чисел:</p>
+        <p>N = p * q * r = ${p} * ${q} * ${r} = ${N}</p>
+        <p>Функция Эйлера φ(N) используется для генерации ключей и вычисляется как:</p>
+        <p>φ(N) = (p - 1) * (q - 1) * (r - 1) = (${p} - 1) * (${q} - 1) * (${r} - 1) = ${phi}</p>
+        
+        <p><strong>Шаг 3: Генерация ключей для пользователей</strong></p>
+        <p>Каждому пользователю генерируется пара ключей: публичный ключ (e) и приватный ключ (d). Эти ключи используются для шифрования и дешифрования сообщений.</p>
+        <p>Пользователь 1: e1 = ${user1Keys.publicKey}, d1 = ${user1Keys.privateKey}</p>
+        <p>Пользователь 2: e2 = ${user2Keys.publicKey}, d2 = ${user2Keys.privateKey}</p>
+        
+        <p><strong>Шаг 4: Пример использования</strong></p>
+        <p>Допустим, Пользователь 1 хочет отправить сообщение Пользователю 2. Сообщение сначала шифруется с использованием публичного ключа Пользователя 2, а затем расшифровывается с использованием его приватного ключа.</p>
+        <p>Сообщение: ${message}</p>
+        <p>Зашифрованное сообщение (используя e2): ${encryptedMessage}</p>
+        <p>Расшифрованное сообщение (используя d2): ${decryptedMessage}</p>
+        `;
+
+        rsaResult.innerHTML = steps; // Отображаем результат в блоке
+    } catch (error) {
+        console.error("Ошибка при генерации RSA:", error);
+        rsaResult.innerHTML = `Ошибка: ${error.message}`; // Выводим ошибку, если она произошла
+    }
+}
+
+// Функция для генерации случайного простого числа
+function generatePrime() {
+    let num;
+    do {
+        num = Math.floor(Math.random() * 100) + 10; // Случайное число от 10 до 109
+    } while (!isPrime(num)); // Проверяем, простое ли число
+    return num;
+}
+
+// Функция для проверки, является ли число простым
+function isPrime(num) {
+    if (num < 2) return false;
+    for (let i = 2; i <= Math.sqrt(num); i++) {
+        if (num % i === 0) return false; // Если делится на i без остатка, то не простое
+    }
+    return true; // Число простое
+}
+
+// Функция для генерации ключей RSA
+function generateRSAKeys(phi) {
+    const e = findPublicKey(phi); // Находим публичный ключ
+    const d = modInverse(e, phi); // Находим обратный ключ
+    return { publicKey: e, privateKey: d };
+}
+
+// Функция для нахождения публичного ключа
+function findPublicKey(phi) {
+    let e = 2;
+    while (e < phi) {
+        if (gcd(e, phi) === 1) { // Проверяем, взаимно ли просто e с φ(N)
+            return e;
+        }
+        e++;
+    }
+    return e;
+}
+
+// Функция для вычисления наибольшего общего делителя (НОД)
+function gcd(a, b) {
+    while (b !== 0) {
+        let temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+// Функция для вычисления модульной обратной величины
+function modInverse(a, m) {
+    let m0 = m;
+    let y = 0, x = 1;
+    if (m === 1) return 0;
+    while (a > 1) {
+        let q = Math.floor(a / m);
+        let t = m;
+        m = a % m;
+        a = t;
+        t = y;
+        y = x - q * y;
+        x = t;
+    }
+    if (x < 0) x += m0;
+    return x;
+}
+
+// Функция для вычисления возведения в степень по модулю
+function modExp(base, exp, mod) {
+    let result = 1;
+    base = base % mod;
+    while (exp > 0) {
+        if (exp % 2 === 1) {
+            result = (result * base) % mod;
+        }
+        exp = Math.floor(exp / 2);
+        base = (base * base) % mod;
+    }
+    return result;
+}
+
+
+    </script>
+</body>
+</html>
