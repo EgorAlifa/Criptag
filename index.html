@@ -187,7 +187,9 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="page-title">Calculator Tasks</h1>
+        <h1 class="page-title">
+            <a href="test.html" style="text-decoration: none; color: inherit;">Calculator Tasks</a>
+          </h1>
         
         <div class="tasks-grid">
             <!-- Task 1: Modulus Calculator -->
@@ -698,7 +700,6 @@ function calculateRSA() {
         const numericValues = values.map(v => parseInt(v, 10));
         const sum = numericValues.reduce((a, b) => a + b, 0);
         let T = sum + 1;
-        const R = 66;
 
         function gcd(a, b) {
             while (b) {
@@ -706,6 +707,14 @@ function calculateRSA() {
             }
             return a;
         }
+        function findDynamicR(T) {
+            let R = 2; // Начинаем с первого взаимно простого с т
+            while (gcd(R, T) !== 1) {
+                R++;
+            }
+            return R;
+        }
+        const R = findDynamicR(T);
 
         while (gcd(R, T) !== 1) {
             T++;
