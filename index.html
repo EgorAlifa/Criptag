@@ -187,9 +187,9 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="page-title">
-            <a href="test.html" style="text-decoration: none; color: inherit;">Calculator Tasks</a>
-          </h1>
+       <h1 class="page-title">
+  <a href="test.html" style="text-decoration: none; color: inherit;">Calculator Tasks</a>
+</h1>
         
         <div class="tasks-grid">
             <!-- Task 1: Modulus Calculator -->
@@ -696,30 +696,58 @@ function calculateRSA() {
                 values[i] = `${randomFirstDigit}${currentPowerPart.toString().padStart(2, '0')}${randomPart}`;
             }
         }
-
-        const numericValues = values.map(v => parseInt(v, 10));
-        const sum = numericValues.reduce((a, b) => a + b, 0);
+        const numericValues = values.map(v => parseInt(v, 10)); // Преобразуем в массив чисел
+        const sum = numericValues.reduce((a, b) => a + b, 0); // Суммируем числа
         let T = sum + 1;
+        function factorize(n) {
+        let factors = [];
+        // Ищем простые делители числа n
+        for (let i = 2; i <= Math.sqrt(n); i++) {
+            while (n % i === 0) {
+                factors.push(i); // Добавляем делитель в массив
+                n /= i; // Делим на этот делитель
+            }
+        }
+        // Если остался простое число больше 1
+        if (n > 1) {
+            factors.push(n);
+        }
+        return factors;
+    }
+    
+        // Разложение T + 1 на два простых числа
+        const [prime1, prime2] = factorize(T);
+        if (!prime1 || !prime2) {
+            throw new Error('Невозможно разложить T + 1 на два простых числа');
+        }
 
+        // Используем найденные простые числа для R и S
+        let R = prime1;
+        let S = prime2;
+
+        // Если R >= S, меняем их местами
+        if (R >= S) {
+            [R, S] = [S, R];
+        }
+        R = findDynamicR(T); // Пересчитываем R, если нужно
+
+        // Функция для нахождения наибольшего общего делителя
         function gcd(a, b) {
             while (b) {
                 [a, b] = [b, a % b];
             }
             return a;
         }
+        // Функция для нахождения R, которое взаимно простое с T
         function findDynamicR(T) {
-            let R = 2; // Начинаем с первого взаимно простого с т
-            while (gcd(R, T) !== 1) {
+            let R = 2; // Начинаем с первого возможного R
+            while (gcd(R, T) !== 1) {  // Пока НОД не равен 1
                 R++;
             }
             return R;
         }
-        const R = findDynamicR(T);
 
-        while (gcd(R, T) !== 1) {
-            T++;
-        }
-
+        // Расширенный алгоритм Евклида для нахождения обратного элемента
         function extendedEuclidean(a, b) {
             if (b === 0) {
                 return [1, 0, a];
@@ -730,14 +758,17 @@ function calculateRSA() {
             return [x, y, gcd];
         }
 
-        const [S, , gcdResult] = extendedEuclidean(R, T);
+        // Находим мультипликативную инверсию для S
+        const [S_inv, , gcdResult] = extendedEuclidean(R, T);
         if (gcdResult !== 1) {
             throw new Error('Невозможно найти мультипликативную инверсию');
         }
 
-        const adjustedS = (S % T + T) % T;
-        const bValues = numericValues.map(a => (a * R) % T);
+        // Корректируем значение S_inv
+        const adjustedS = (S_inv % T + T) % T; // Модифицируем S_inv для положительного значения
 
+        // Массив bValues, вычисленный с использованием R и T
+        const bValues = numericValues.map(a => (a * R) % T);
         let steps = `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
@@ -746,7 +777,7 @@ function calculateRSA() {
         steps += `Σai = ${numericValues.join(' + ')} = ${sum}\n`;
         steps += `Пусть T = ${T} > Σai = ${sum}\n`;
         steps += `Пусть R = ${R} < T = ${T}\n`;
-        steps += `Найдём S: RS ≡ 1 (mod T)\n`;
+        steps += `Найдём S: RS (mod T)=1\n`;
         steps += `S = ${adjustedS}\n\n`;
 
         steps += `2) Составим вектор b = a·R mod T:\n`;
@@ -936,22 +967,58 @@ function calculateKnapsackJunior() {
             }
         }
 
-        const numericValues = values.map(v => parseInt(v, 10));
-        const sum = numericValues.reduce((a, b) => a + b, 0);
+        const numericValues = values.map(v => parseInt(v, 10)); // Преобразуем в массив чисел
+        const sum = numericValues.reduce((a, b) => a + b, 0); // Суммируем числа
         let T = sum + 1;
-        const R = 66;
+        function factorize(n) {
+        let factors = [];
+        // Ищем простые делители числа n
+        for (let i = 2; i <= Math.sqrt(n); i++) {
+            while (n % i === 0) {
+                factors.push(i); // Добавляем делитель в массив
+                n /= i; // Делим на этот делитель
+            }
+        }
+        // Если остался простое число больше 1
+        if (n > 1) {
+            factors.push(n);
+        }
+        return factors;
+    }
+    
+        // Разложение T + 1 на два простых числа
+        const [prime1, prime2] = factorize(T);
+        if (!prime1 || !prime2) {
+            throw new Error('Невозможно разложить T + 1 на два простых числа');
+        }
 
+        // Используем найденные простые числа для R и S
+        let R = prime1;
+        let S = prime2;
+
+        // Если R >= S, меняем их местами
+        if (R >= S) {
+            [R, S] = [S, R];
+        }
+        R = findDynamicR(T); // Пересчитываем R, если нужно
+
+        // Функция для нахождения наибольшего общего делителя
         function gcd(a, b) {
             while (b) {
                 [a, b] = [b, a % b];
             }
             return a;
         }
-
-        while (gcd(R, T) !== 1) {
-            T++;
+        // Функция для нахождения R, которое взаимно простое с T
+        function findDynamicR(T) {
+            let R = 2; // Начинаем с первого возможного R
+            while (gcd(R, T) !== 1) {  // Пока НОД не равен 1
+                R++;
+            }
+            return R;
         }
 
+        // Расширенный алгоритм Евклида для нахождения обратного элемента
         function extendedEuclidean(a, b) {
             if (b === 0) {
                 return [1, 0, a];
@@ -962,14 +1029,17 @@ function calculateKnapsackJunior() {
             return [x, y, gcd];
         }
 
-        const [S, , gcdResult] = extendedEuclidean(R, T);
+        // Находим мультипликативную инверсию для S
+        const [S_inv, , gcdResult] = extendedEuclidean(R, T);
         if (gcdResult !== 1) {
             throw new Error('Невозможно найти мультипликативную инверсию');
         }
 
-        const adjustedS = (S % T + T) % T;
-        const bValues = numericValues.map(a => (a * R) % T);
+        // Корректируем значение S_inv
+        const adjustedS = (S_inv % T + T) % T; // Модифицируем S_inv для положительного значения
 
+        // Массив bValues, вычисленный с использованием R и T
+        const bValues = numericValues.map(a => (a * R) % T);
         let steps = `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
@@ -1116,22 +1186,58 @@ function calculateKnapsackJunior() {
             }
         }
 
-        const numericValues = values.map(v => parseInt(v, 10));
-        const sum = numericValues.reduce((a, b) => a + b, 0);
+        const numericValues = values.map(v => parseInt(v, 10)); // Преобразуем в массив чисел
+        const sum = numericValues.reduce((a, b) => a + b, 0); // Суммируем числа
         let T = sum + 1;
-        const R = 66;
+        function factorize(n) {
+        let factors = [];
+        // Ищем простые делители числа n
+        for (let i = 2; i <= Math.sqrt(n); i++) {
+            while (n % i === 0) {
+                factors.push(i); // Добавляем делитель в массив
+                n /= i; // Делим на этот делитель
+            }
+        }
+        // Если остался простое число больше 1
+        if (n > 1) {
+            factors.push(n);
+        }
+        return factors;
+    }
+    
+        // Разложение T + 1 на два простых числа
+        const [prime1, prime2] = factorize(T);
+        if (!prime1 || !prime2) {
+            throw new Error('Невозможно разложить T + 1 на два простых числа');
+        }
 
+        // Используем найденные простые числа для R и S
+        let R = prime1;
+        let S = prime2;
+
+        // Если R >= S, меняем их местами
+        if (R >= S) {
+            [R, S] = [S, R];
+        }
+        R = findDynamicR(T); // Пересчитываем R, если нужно
+
+        // Функция для нахождения наибольшего общего делителя
         function gcd(a, b) {
             while (b) {
                 [a, b] = [b, a % b];
             }
             return a;
         }
-
-        while (gcd(R, T) !== 1) {
-            T++;
+        // Функция для нахождения R, которое взаимно простое с T
+        function findDynamicR(T) {
+            let R = 2; // Начинаем с первого возможного R
+            while (gcd(R, T) !== 1) {  // Пока НОД не равен 1
+                R++;
+            }
+            return R;
         }
 
+        // Расширенный алгоритм Евклида для нахождения обратного элемента
         function extendedEuclidean(a, b) {
             if (b === 0) {
                 return [1, 0, a];
@@ -1142,14 +1248,17 @@ function calculateKnapsackJunior() {
             return [x, y, gcd];
         }
 
-        const [S, , gcdResult] = extendedEuclidean(R, T);
+        // Находим мультипликативную инверсию для S
+        const [S_inv, , gcdResult] = extendedEuclidean(R, T);
         if (gcdResult !== 1) {
             throw new Error('Невозможно найти мультипликативную инверсию');
         }
 
-        const adjustedS = (S % T + T) % T;
-        const bValues = numericValues.map(a => (a * R) % T);
+        // Корректируем значение S_inv
+        const adjustedS = (S_inv % T + T) % T; // Модифицируем S_inv для положительного значения
 
+        // Массив bValues, вычисленный с использованием R и T
+        const bValues = numericValues.map(a => (a * R) % T);
         let steps = `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
@@ -1340,22 +1449,58 @@ function calculateKnapsackFor5Modified() {
             }
         }
 
-        const numericValues = values.map(v => parseInt(v, 10));
-        const sum = numericValues.reduce((a, b) => a + b, 0);
+        const numericValues = values.map(v => parseInt(v, 10)); // Преобразуем в массив чисел
+        const sum = numericValues.reduce((a, b) => a + b, 0); // Суммируем числа
         let T = sum + 1;
-        const R = 66;
+        function factorize(n) {
+        let factors = [];
+        // Ищем простые делители числа n
+        for (let i = 2; i <= Math.sqrt(n); i++) {
+            while (n % i === 0) {
+                factors.push(i); // Добавляем делитель в массив
+                n /= i; // Делим на этот делитель
+            }
+        }
+        // Если остался простое число больше 1
+        if (n > 1) {
+            factors.push(n);
+        }
+        return factors;
+    }
+    
+        // Разложение T + 1 на два простых числа
+        const [prime1, prime2] = factorize(T);
+        if (!prime1 || !prime2) {
+            throw new Error('Невозможно разложить T + 1 на два простых числа');
+        }
 
+        // Используем найденные простые числа для R и S
+        let R = prime1;
+        let S = prime2;
+
+        // Если R >= S, меняем их местами
+        if (R >= S) {
+            [R, S] = [S, R];
+        }
+        R = findDynamicR(T); // Пересчитываем R, если нужно
+
+        // Функция для нахождения наибольшего общего делителя
         function gcd(a, b) {
             while (b) {
                 [a, b] = [b, a % b];
             }
             return a;
         }
-
-        while (gcd(R, T) !== 1) {
-            T++;
+        // Функция для нахождения R, которое взаимно простое с T
+        function findDynamicR(T) {
+            let R = 2; // Начинаем с первого возможного R
+            while (gcd(R, T) !== 1) {  // Пока НОД не равен 1
+                R++;
+            }
+            return R;
         }
 
+        // Расширенный алгоритм Евклида для нахождения обратного элемента
         function extendedEuclidean(a, b) {
             if (b === 0) {
                 return [1, 0, a];
@@ -1366,14 +1511,17 @@ function calculateKnapsackFor5Modified() {
             return [x, y, gcd];
         }
 
-        const [S, , gcdResult] = extendedEuclidean(R, T);
+        // Находим мультипликативную инверсию для S
+        const [S_inv, , gcdResult] = extendedEuclidean(R, T);
         if (gcdResult !== 1) {
             throw new Error('Невозможно найти мультипликативную инверсию');
         }
 
-        const adjustedS = (S % T + T) % T;
-        const bValues = numericValues.map(a => (a * R) % T);
+        // Корректируем значение S_inv
+        const adjustedS = (S_inv % T + T) % T; // Модифицируем S_inv для положительного значения
 
+        // Массив bValues, вычисленный с использованием R и T
+        const bValues = numericValues.map(a => (a * R) % T);
         let steps = `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
@@ -1554,22 +1702,58 @@ function calculateKnapsackFor3Lower() {
         }
 
         // Rest of the knapsack calculation remains the same
-        const numericValues = values.map(v => parseInt(v, 10));
-        const sum = numericValues.reduce((a, b) => a + b, 0);
+        const numericValues = values.map(v => parseInt(v, 10)); // Преобразуем в массив чисел
+        const sum = numericValues.reduce((a, b) => a + b, 0); // Суммируем числа
         let T = sum + 1;
-        const R = 66;
+        function factorize(n) {
+        let factors = [];
+        // Ищем простые делители числа n
+        for (let i = 2; i <= Math.sqrt(n); i++) {
+            while (n % i === 0) {
+                factors.push(i); // Добавляем делитель в массив
+                n /= i; // Делим на этот делитель
+            }
+        }
+        // Если остался простое число больше 1
+        if (n > 1) {
+            factors.push(n);
+        }
+        return factors;
+    }
+    
+        // Разложение T + 1 на два простых числа
+        const [prime1, prime2] = factorize(T);
+        if (!prime1 || !prime2) {
+            throw new Error('Невозможно разложить T + 1 на два простых числа');
+        }
 
+        // Используем найденные простые числа для R и S
+        let R = prime1;
+        let S = prime2;
+
+        // Если R >= S, меняем их местами
+        if (R >= S) {
+            [R, S] = [S, R];
+        }
+        R = findDynamicR(T); // Пересчитываем R, если нужно
+
+        // Функция для нахождения наибольшего общего делителя
         function gcd(a, b) {
             while (b) {
                 [a, b] = [b, a % b];
             }
             return a;
         }
-
-        while (gcd(R, T) !== 1) {
-            T++;
+        // Функция для нахождения R, которое взаимно простое с T
+        function findDynamicR(T) {
+            let R = 2; // Начинаем с первого возможного R
+            while (gcd(R, T) !== 1) {  // Пока НОД не равен 1
+                R++;
+            }
+            return R;
         }
 
+        // Расширенный алгоритм Евклида для нахождения обратного элемента
         function extendedEuclidean(a, b) {
             if (b === 0) {
                 return [1, 0, a];
@@ -1580,15 +1764,17 @@ function calculateKnapsackFor3Lower() {
             return [x, y, gcd];
         }
 
-        const [S, , gcdResult] = extendedEuclidean(R, T);
+        // Находим мультипликативную инверсию для S
+        const [S_inv, , gcdResult] = extendedEuclidean(R, T);
         if (gcdResult !== 1) {
             throw new Error('Невозможно найти мультипликативную инверсию');
         }
 
-        const adjustedS = (S % T + T) % T;
-        const bValues = numericValues.map(a => (a * R) % T);
+        // Корректируем значение S_inv
+        const adjustedS = (S_inv % T + T) % T; // Модифицируем S_inv для положительного значения
 
-        // Output formatting remains the same
+        // Массив bValues, вычисленный с использованием R и T
+        const bValues = numericValues.map(a => (a * R) % T);
         let steps = `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
@@ -1770,22 +1956,58 @@ function calculateKnapsackFor3Upper() {
         }
 
         // Rest of the knapsack calculation remains the same
-        const numericValues = values.map(v => parseInt(v, 10));
-        const sum = numericValues.reduce((a, b) => a + b, 0);
+        const numericValues = values.map(v => parseInt(v, 10)); // Преобразуем в массив чисел
+        const sum = numericValues.reduce((a, b) => a + b, 0); // Суммируем числа
         let T = sum + 1;
-        const R = 66;
+        function factorize(n) {
+        let factors = [];
+        // Ищем простые делители числа n
+        for (let i = 2; i <= Math.sqrt(n); i++) {
+            while (n % i === 0) {
+                factors.push(i); // Добавляем делитель в массив
+                n /= i; // Делим на этот делитель
+            }
+        }
+        // Если остался простое число больше 1
+        if (n > 1) {
+            factors.push(n);
+        }
+        return factors;
+    }
+    
+        // Разложение T + 1 на два простых числа
+        const [prime1, prime2] = factorize(T);
+        if (!prime1 || !prime2) {
+            throw new Error('Невозможно разложить T + 1 на два простых числа');
+        }
 
+        // Используем найденные простые числа для R и S
+        let R = prime1;
+        let S = prime2;
+
+        // Если R >= S, меняем их местами
+        if (R >= S) {
+            [R, S] = [S, R];
+        }
+        R = findDynamicR(T); // Пересчитываем R, если нужно
+
+        // Функция для нахождения наибольшего общего делителя
         function gcd(a, b) {
             while (b) {
                 [a, b] = [b, a % b];
             }
             return a;
         }
-
-        while (gcd(R, T) !== 1) {
-            T++;
+        // Функция для нахождения R, которое взаимно простое с T
+        function findDynamicR(T) {
+            let R = 2; // Начинаем с первого возможного R
+            while (gcd(R, T) !== 1) {  // Пока НОД не равен 1
+                R++;
+            }
+            return R;
         }
 
+        // Расширенный алгоритм Евклида для нахождения обратного элемента
         function extendedEuclidean(a, b) {
             if (b === 0) {
                 return [1, 0, a];
@@ -1796,15 +2018,17 @@ function calculateKnapsackFor3Upper() {
             return [x, y, gcd];
         }
 
-        const [S, , gcdResult] = extendedEuclidean(R, T);
+        // Находим мультипликативную инверсию для S
+        const [S_inv, , gcdResult] = extendedEuclidean(R, T);
         if (gcdResult !== 1) {
             throw new Error('Невозможно найти мультипликативную инверсию');
         }
 
-        const adjustedS = (S % T + T) % T;
-        const bValues = numericValues.map(a => (a * R) % T);
+        // Корректируем значение S_inv
+        const adjustedS = (S_inv % T + T) % T; // Модифицируем S_inv для положительного значения
 
-        // Output formatting remains the same
+        // Массив bValues, вычисленный с использованием R и T
+        const bValues = numericValues.map(a => (a * R) % T);
         let steps = `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
