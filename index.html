@@ -2146,149 +2146,151 @@ function calculateKnapsackFor3Upper() {
     }
 } 
  // Номер 6 ачинается тут
+ // Основная функция демонстрации работы RSA криптосистемы
  function generateRSAExample() {
     const rsaResult = document.getElementById('rsa-result');
-    rsaResult.innerHTML = ''; // Очищаем предыдущий результат
-
-    console.log("Кнопка нажата, начинается генерация RSA...");
+    rsaResult.innerHTML = 'Генерация примера...';
 
     try {
-        // Шаг 1: Генерация трех различных простых чисел p, q и r
-        const p = generatePrime();
-        let q = generatePrime();
-        while (q === p) {
-            q = generatePrime(); // Убедимся, что q отличается от p
-        }
-        let r = generatePrime();
-        while (r === p || r === q) {
-            r = generatePrime(); // Убедимся, что r отличается от p и q
-        }
+        // Используем небольшие простые числа
+        const primes = [11, 13, 17, 19, 23, 29, 31, 37];
+        const [p, q, r] = selectDistinctPrimes(primes, 3);
 
-        // Шаг 2: Вычисление модульного произведения N и функции Эйлера φ(N)
+        // Вычисляем модуль N и функцию Эйлера
         const N = p * q * r;
         const phi = (p - 1) * (q - 1) * (r - 1);
 
-        // Шаг 3: Генерация публичных и приватных ключей для двух пользователей
-        const user1Keys = generateRSAKeys(phi);
-        const user2Keys = generateRSAKeys(phi);
+        // Генерируем пары ключей для обоих пользователей
+        const keys = generateDistinctKeyPairs(phi);
 
-        // Шаг 4: Пример сообщения для шифрования
-        const message = Math.floor(Math.random() * 100); // Случайное сообщение
-        const encryptedMessage = modExp(message, user2Keys.publicKey, N); // Зашифрованное сообщение
-        const decryptedMessage = modExp(encryptedMessage, user2Keys.privateKey, N); // Расшифрованное сообщение
+        // Тестовое сообщение
+        const message = 7;
 
-        // Описание процесса генерации RSA и примеров использования
-        let steps = `
-        <h3>Пример генерации RSA:</h3>
-        <p><strong>Шаг 1: Выбор простых чисел</strong></p>
-        <p>Для обеспечения безопасности системы выбираются три различных простых числа p, q и r.</p>
-        <p>Выбранные простые числа: p = ${p}, q = ${q}, r = ${r}</p>
+        // Шифрование и расшифрование
+        const encrypted = modExp(message, keys.user2.e, N);
+        const decrypted = modExp(encrypted, keys.user2.d, N);
+
+        let result = `
+        <h3>Демонстрация работы криптосистемы RSA</h3>
         
-        <p><strong>Шаг 2: Вычисление модуля N и функции Эйлера φ(N)</strong></p>
-        <p>Модуль N является основой для шифрования и вычисляется как произведение выбранных простых чисел:</p>
-        <p>N = p * q * r = ${p} * ${q} * ${r} = ${N}</p>
-        <p>Функция Эйлера φ(N) используется для генерации ключей и вычисляется как:</p>
-        <p>φ(N) = (p - 1) * (q - 1) * (r - 1) = (${p} - 1) * (${q} - 1) * (${r} - 1) = ${phi}</p>
+        <p><strong>1. Параметры системы:</strong></p>
+        <ul>
+            <li>p = ${p} (простое число)</li>
+            <li>q = ${q} (простое число)</li>
+            <li>r = ${r} (простое число)</li>
+            <li>N = p⋅q⋅r = ${N} (модуль системы)</li>
+            <li>φ(N) = (p-1)(q-1)(r-1) = ${phi} (функция Эйлера)</li>
+        </ul>
+
+        <p><strong>2. Ключи пользователей:</strong></p>
+        <p>Пользователь 1:</p>
+        <ul>
+            <li>Открытый ключ e₁ = ${keys.user1.e}</li>
+            <li>Закрытый ключ d₁ = ${keys.user1.d}</li>
+            <li>Проверка: ${keys.user1.e}⋅${keys.user1.d} ≡ 1 (mod ${phi})</li>
+        </ul>
         
-        <p><strong>Шаг 3: Генерация ключей для пользователей</strong></p>
-        <p>Каждому пользователю генерируется пара ключей: публичный ключ (e) и приватный ключ (d). Эти ключи используются для шифрования и дешифрования сообщений.</p>
-        <p>Пользователь 1: e1 = ${user1Keys.publicKey}, d1 = ${user1Keys.privateKey}</p>
-        <p>Пользователь 2: e2 = ${user2Keys.publicKey}, d2 = ${user2Keys.privateKey}</p>
-        
-        <p><strong>Шаг 4: Пример использования</strong></p>
-        <p>Допустим, Пользователь 1 хочет отправить сообщение Пользователю 2. Сообщение сначала шифруется с использованием публичного ключа Пользователя 2, а затем расшифровывается с использованием его приватного ключа.</p>
-        <p>Сообщение: ${message}</p>
-        <p>Зашифрованное сообщение (используя e2): ${encryptedMessage}</p>
-        <p>Расшифрованное сообщение (используя d2): ${decryptedMessage}</p>
+        <p>Пользователь 2:</p>
+        <ul>
+            <li>Открытый ключ e₂ = ${keys.user2.e}</li>
+            <li>Закрытый ключ d₂ = ${keys.user2.d}</li>
+            <li>Проверка: ${keys.user2.e}⋅${keys.user2.d} ≡ 1 (mod ${phi})</li>
+        </ul>
+
+        <p><strong>3. Пример обмена сообщением:</strong></p>
+        <ul>
+            <li>Исходное сообщение M = ${message}</li>
+            <li>Шифрование (C = M^(e₂) mod N) = ${encrypted}</li>
+            <li>Расшифрование (M = C^(d₂) mod N) = ${decrypted}</li>
+        </ul>
         `;
 
-        rsaResult.innerHTML = steps; // Отображаем результат в блоке
+        rsaResult.innerHTML = result;
     } catch (error) {
-        console.error("Ошибка при генерации RSA:", error);
-        rsaResult.innerHTML = `Ошибка: ${error.message}`; // Выводим ошибку, если она произошла
+        console.error("Ошибка в генерации RSA:", error);
+        rsaResult.innerHTML = `Ошибка генерации RSA: ${error.message}. Пожалуйста, попробуйте еще раз.`;
     }
 }
 
-// Функция для генерации случайного простого числа
-function generatePrime() {
-    let num;
-    do {
-        num = Math.floor(Math.random() * 100) + 10; // Случайное число от 10 до 109
-    } while (!isPrime(num)); // Проверяем, простое ли число
-    return num;
+// Функция выбора случайных различных простых чисел
+function selectDistinctPrimes(primes, count) {
+    const shuffled = [...primes].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
 }
 
-// Функция для проверки, является ли число простым
-function isPrime(num) {
-    if (num < 2) return false;
-    for (let i = 2; i <= Math.sqrt(num); i++) {
-        if (num % i === 0) return false; // Если делится на i без остатка, то не простое
-    }
-    return true; // Число простое
-}
+// Функция генерации различных пар ключей
+function generateDistinctKeyPairs(phi) {
+    // Расширенный список возможных открытых ключей
+    const possibleEs = [3, 5, 7, 11, 13, 17, 19, 23];
+    let user1 = null;
+    let user2 = null;
 
-// Функция для генерации ключей RSA
-function generateRSAKeys(phi) {
-    const e = findPublicKey(phi); // Находим публичный ключ
-    const d = modInverse(e, phi); // Находим обратный ключ
-    return { publicKey: e, privateKey: d };
-}
-
-// Функция для нахождения публичного ключа
-function findPublicKey(phi) {
-    let e = 2;
-    while (e < phi) {
-        if (gcd(e, phi) === 1) { // Проверяем, взаимно ли просто e с φ(N)
-            return e;
+    // Генерация первой пары ключей
+    for (const e1 of possibleEs) {
+        if (gcd(e1, phi) === 1) {
+            const d1 = calculateModInverse(e1, phi);
+            if (d1 !== null) {
+                user1 = { e: e1, d: d1 };
+                break;
+            }
         }
-        e++;
     }
-    return e;
+
+    if (!user1) throw new Error("Не удалось сгенерировать первую пару ключей");
+
+    // Генерация второй пары ключей (отличной от первой)
+    for (const e2 of possibleEs) {
+        if (e2 !== user1.e && gcd(e2, phi) === 1) {
+            const d2 = calculateModInverse(e2, phi);
+            if (d2 !== null) {
+                user2 = { e: e2, d: d2 };
+                break;
+            }
+        }
+    }
+
+    if (!user2) throw new Error("Не удалось сгенерировать вторую пару ключей");
+
+    return { user1, user2 };
 }
 
-// Функция для вычисления наибольшего общего делителя (НОД)
+// Функция вычисления НОД
 function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
     while (b !== 0) {
-        let temp = b;
+        const temp = b;
         b = a % b;
         a = temp;
     }
     return a;
 }
 
-// Функция для вычисления модульной обратной величины
-function modInverse(a, m) {
-    let m0 = m;
-    let y = 0, x = 1;
-    if (m === 1) return 0;
-    while (a > 1) {
-        let q = Math.floor(a / m);
-        let t = m;
-        m = a % m;
-        a = t;
-        t = y;
-        y = x - q * y;
-        x = t;
+// Функция вычисления модульного обратного
+function calculateModInverse(a, m) {
+    a = ((a % m) + m) % m;
+    for (let x = 1; x < m; x++) {
+        if ((a * x) % m === 1) {
+            return x;
+        }
     }
-    if (x < 0) x += m0;
-    return x;
+    return null;
 }
 
-// Функция для вычисления возведения в степень по модулю
+// Функция возведения в степень по модулю
 function modExp(base, exp, mod) {
+    if (mod === 1) return 0;
     let result = 1;
     base = base % mod;
     while (exp > 0) {
         if (exp % 2 === 1) {
             result = (result * base) % mod;
         }
-        exp = Math.floor(exp / 2);
         base = (base * base) % mod;
+        exp = Math.floor(exp / 2);
     }
     return result;
 }
-
-
     </script>
 </body>
 </html>
