@@ -680,6 +680,7 @@ function calculateRSA() {
         const mArray = mValue.split(',').map(x => parseInt(x.trim()));
         let steps = `Task 2\n`;
         steps += `14) p = ${pValue}, q = ${qValue}, m = ${mArray.join(',')}\n\n`;
+        
 
         const N = pValue * qValue;
         const phiN = (pValue - 1) * (qValue - 1);
@@ -872,7 +873,8 @@ document.addEventListener('keypress', function(e) {
 
         // Массив bValues, вычисленный с использованием R и T
         const bValues = numericValues.map(a => (a * R) % T);
-        let steps = `Сгенерированные значения a:\n`;
+        let steps = `Важно: Открытый ключ b считается корректным, если M не состоит полностью из единиц (например, 11111) и не содержит только одну единицу (например, 00001). Если вам выпал такой случай - надо повторно нажать кнопку Calculate\n\n`;
+        steps += `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
         });
@@ -1143,7 +1145,8 @@ function calculateKnapsackJunior() {
 
         // Массив bValues, вычисленный с использованием R и T
         const bValues = numericValues.map(a => (a * R) % T);
-        let steps = `Сгенерированные значения a:\n`;
+        let steps = `Важно: Открытый ключ b считается корректным, если M не состоит полностью из единиц (например, 11111) и не содержит только одну единицу (например, 00001). Если вам выпал такой случай - надо повторно нажать кнопку Calculate\n\n`;
+        steps += `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
         });
@@ -1151,7 +1154,7 @@ function calculateKnapsackJunior() {
         steps += `Σai = ${numericValues.join(' + ')} = ${sum}\n`;
         steps += `Пусть T = ${T} > Σai = ${sum}\n`;
         steps += `Пусть R = ${R} < T = ${T}\n`;
-        steps += `Найдём S: RS ≡ 1 (mod T)\n`;
+        steps += `Найдём S: RS (mod T)=1\n`;
         steps += `S = ${adjustedS}\n\n`;
 
         steps += `2) Составим вектор b = a·R mod T:\n`;
@@ -1362,7 +1365,8 @@ function calculateKnapsackJunior() {
 
         // Массив bValues, вычисленный с использованием R и T
         const bValues = numericValues.map(a => (a * R) % T);
-        let steps = `Сгенерированные значения a:\n`;
+        let steps = `Важно: Открытый ключ b считается корректным, если M не состоит полностью из единиц (например, 11111) и не содержит только одну единицу (например, 00001). Если вам выпал такой случай - надо повторно нажать кнопку Calculate\n\n`;
+        steps += `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
         });
@@ -1370,7 +1374,7 @@ function calculateKnapsackJunior() {
         steps += `Σai = ${numericValues.join(' + ')} = ${sum}\n`;
         steps += `Пусть T = ${T} > Σai = ${sum}\n`;
         steps += `Пусть R = ${R} < T = ${T}\n`;
-        steps += `Найдём S: RS ≡ 1 (mod T)\n`;
+        steps += `Найдём S: RS (mod T)=1\n`;
         steps += `S = ${adjustedS}\n\n`;
 
         steps += `2) Составим вектор b = a·R mod T:\n`;
@@ -1625,7 +1629,8 @@ function calculateKnapsackFor5Modified() {
 
         // Массив bValues, вычисленный с использованием R и T
         const bValues = numericValues.map(a => (a * R) % T);
-        let steps = `Сгенерированные значения a:\n`;
+        let steps = `Важно: Открытый ключ b считается корректным, если M не состоит полностью из единиц (например, 11111) и не содержит только одну единицу (например, 00001). Если вам выпал такой случай - надо повторно нажать кнопку Calculate\n\n`;
+        steps += `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
         });
@@ -1633,7 +1638,7 @@ function calculateKnapsackFor5Modified() {
         steps += `Σai = ${numericValues.join(' + ')} = ${sum}\n`;
         steps += `Пусть T = ${T} > Σai = ${sum}\n`;
         steps += `Пусть R = ${R} < T = ${T}\n`;
-        steps += `Найдём S: RS ≡ 1 (mod T)\n`;
+        steps += `Найдём S: RS (mod T)=1\n`;
         steps += `S = ${adjustedS}\n\n`;
 
         steps += `2) Составим вектор b = a·R mod T:\n`;
@@ -1878,7 +1883,8 @@ function calculateKnapsackFor3Lower() {
 
         // Массив bValues, вычисленный с использованием R и T
         const bValues = numericValues.map(a => (a * R) % T);
-        let steps = `Сгенерированные значения a:\n`;
+        let steps = `Важно: Открытый ключ b считается корректным, если M не состоит полностью из единиц (например, 11111) и не содержит только одну единицу (например, 00001). Если вам выпал такой случай - надо повторно нажать кнопку Calculate\n\n`;
+        steps += `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
         });
@@ -1887,7 +1893,7 @@ function calculateKnapsackFor3Lower() {
         steps += `Σai = ${numericValues.join(' + ')} = ${sum}\n`;
         steps += `Пусть T = ${T} > Σai = ${sum}\n`;
         steps += `Пусть R = ${R} < T = ${T}\n`;
-        steps += `Найдём S: RS ≡ 1 (mod T)\n`;
+        steps += `Найдём S: RS (mod T)=1\n`;
         steps += `S = ${adjustedS}\n\n`;
 
         steps += `2) Составим вектор b = a·R mod T:\n`;
@@ -2132,7 +2138,8 @@ function calculateKnapsackFor3Upper() {
 
         // Массив bValues, вычисленный с использованием R и T
         const bValues = numericValues.map(a => (a * R) % T);
-        let steps = `Сгенерированные значения a:\n`;
+        let steps = `Важно: Открытый ключ b считается корректным, если M не состоит полностью из единиц (например, 11111) и не содержит только одну единицу (например, 00001). Если вам выпал такой случай - надо повторно нажать кнопку Calculate\n\n`;
+        steps += `Сгенерированные значения a:\n`;
         values.forEach((a, i) => {
             steps += `a${i} = ${a}${i === selectedIndex ? ' (введено)' : ''}\n`;
         });
@@ -2141,7 +2148,7 @@ function calculateKnapsackFor3Upper() {
         steps += `Σai = ${numericValues.join(' + ')} = ${sum}\n`;
         steps += `Пусть T = ${T} > Σai = ${sum}\n`;
         steps += `Пусть R = ${R} < T = ${T}\n`;
-        steps += `Найдём S: RS ≡ 1 (mod T)\n`;
+        steps += `Найдём S: RS (mod T)=1\n`;
         steps += `S = ${adjustedS}\n\n`;
 
         steps += `2) Составим вектор b = a·R mod T:\n`;
@@ -2395,21 +2402,21 @@ function modExp(base, exp, mod) {
     return result;
 }
     </script>
-      <script type="text/javascript" >
-        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-        (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-     
-        ym(99581098, "init", {
-             clickmap:true,
-             trackLinks:true,
-             accurateTrackBounce:true,
-             webvisor:true
-        });
-     </script>
-     <noscript><div><img src="https://mc.yandex.ru/watch/99581098" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-     <!-- /Yandex.Metrika counter -->  
+        <script type="text/javascript" >
+            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+            m[i].l=1*new Date();
+            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+         
+            ym(99581098, "init", {
+                 clickmap:true,
+                 trackLinks:true,
+                 accurateTrackBounce:true,
+                 webvisor:true
+            });
+         </script>
+         <noscript><div><img src="https://mc.yandex.ru/watch/99581098" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+         <!-- /Yandex.Metrika counter -->
 </body>
 </html>
