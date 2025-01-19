@@ -194,19 +194,19 @@
         <div class="tasks-grid">
             <!-- Task 1: Modulus Calculator -->
             <div class="task-card">
-                <h2 class="task-header">Задание № 1 криптографии </h2>
+                <h2 class="task-header">Task 1: Mod криптографии </h2>
                 <div class="task-content calculator">
                     <div class="input-group">
                         <label>Введите исходное y формата (2^x mod 19)</label>
-                        <input type="text" id="expression" placeholder="Enter base^x mod m (e.g., 2^x mod 19)">
+                        <input type="text" id="expression" placeholder="Например: 2^5 mod 19">
                     </div>
                     <div class="input-group">
-                        <label>XA value</label>
-                        <input type="number" id="xa" placeholder="Enter XA value">
+                        <label>Xa значение</label>
+                        <input type="number" id="xa" placeholder="Например: 4">
                     </div>
                     <div class="input-group">
-                        <label>XB value</label>
-                        <input type="number" id="xb" placeholder="Enter XB value">
+                        <label>Xb значение</label>
+                        <input type="number" id="xb" placeholder="Например: 9">
                     </div>
                     <button onclick="calculateWithSteps()">Calculate</button>
                     <div id="error" class="error"></div>
@@ -220,17 +220,17 @@
                 <div class="task-content calculator">
                     <div class="input-grid">
                         <div class="input-group">
-                            <label>p value</label>
-                            <input type="number" id="p-value" placeholder="e.g., 3" class="small-input">
+                            <label>Введите p</label>
+                            <input type="number" id="p-value" placeholder="Например: 3" class="small-input">
                         </div>
                         <div class="input-group">
-                            <label>q value</label>
-                            <input type="number" id="q-value" placeholder="e.g., 11" class="small-input">
+                            <label>Введите q</label>
+                            <input type="number" id="q-value" placeholder="Например: 11" class="small-input">
                         </div>
                     </div>
                     <div class="input-group">
-                        <label>m value (comma-separated)</label>
-                        <input type="text" id="m-value" placeholder="e.g., 5,5,4" class="small-input">
+                        <label>Введите m (через запятую)</label>
+                        <input type="text" id="m-value" placeholder="Например: 5,5,4" class="small-input">
                     </div>
                     <button onclick="calculateRSA()">Calculate</button>
                     <div id="rsa-error" class="error"></div>
@@ -508,7 +508,7 @@
             }
         });
  // Номер 2 начинается тут
-function extendedGCD(a, b) {
+ function extendedGCD(a, b) {
     if (b === 0) {
         return [a, 1, 0];
     }
@@ -520,25 +520,55 @@ function extendedGCD(a, b) {
     return [gcd, x, y];
 }
 
-// Находим d по формуле d * e ≡ 1 (mod φ(N))
-function findD(e, phiN) {
-    const [gcd, x, y] = extendedGCD(e, phiN);
-    if (gcd !== 1) {
-        throw new Error(`Невозможно найти d для e = ${e} и φ(N) = ${phiN}`);
+function findSmallestD(phiN) {
+    // Начинаем с e = 3, так как это наименьшее простое число больше 2
+    let e = 3;
+    let smallestD = Infinity;
+    let finalE = null;
+    
+    // Проверяем первые несколько значений e для поиска минимального d
+    while (e < Math.min(100, phiN)) {  // Ограничиваем поиск для эффективности
+        if (gcd(e, phiN) === 1) {
+            const [g, x, y] = extendedGCD(e, phiN);
+            let d = (x % phiN + phiN) % phiN;
+            
+            if (d < smallestD) {
+                smallestD = d;
+                finalE = e;
+            }
+        }
+        e = nextPrime(e);
     }
-    // Приводим результат к положительному числу в диапазоне [1, phiN-1]
-    return (x % phiN + phiN) % phiN;
+    
+    return [finalE, smallestD];
 }
 
-// Теперь находим e, которое взаимно простое с φ(N)
-function findE(phiN, d) {
-    for (let e = 2; e < phiN; e++) {
-        const [gcd, x, y] = extendedGCD(e, phiN);
-        if (gcd === 1 && (e * d) % phiN === 1) { // Условие для совместимости с найденным d
-            return e;
-        }
+function gcd(a, b) {
+    while (b !== 0) {
+        let t = b;
+        b = a % b;
+        a = t;
     }
-    throw new Error("Не удалось найти подходящее значение e");
+    return a;
+}
+
+function isPrime(num) {
+    if (num <= 1) return false;
+    if (num <= 3) return true;
+    if (num % 2 === 0 || num % 3 === 0) return false;
+    
+    for (let i = 5; i * i <= num; i += 6) {
+        if (num % i === 0 || num % (i + 2) === 0) return false;
+    }
+    return true;
+}
+
+function nextPrime(n) {
+    let next = n + 1;
+    while (!isPrime(next)) {
+        next++;
+    }
+    return next;
 }
 
 function modPow(base, exp, mod) {
@@ -579,15 +609,11 @@ function calculateRSA() {
         steps += `N = p·q = ${N}\n`;
         steps += `φ(N) = (p-1)(q-1) = ${phiN}\n\n`;
 
-        // Находим d (предполагаем его значение, например, 7)
-        const d = findD(7, phiN); // Предполагаем d = 7
-        
-        // Теперь находим e
-        const e = findE(phiN, d);
+        // Находим оптимальные e и d
+        const [e, d] = findSmallestD(phiN);
 
-        steps += `Выбираем e: НОД(e,φ(N)) = 1\n`;
+        steps += `Выбираем оптимальные значения:\n`;
         steps += `e = ${e}\n`;
-        steps += `Находим d: d·e ≡ 1 (mod φ(N))\n`;
         steps += `d = ${d}\n\n`;
 
         steps += `PKA = {${e}, ${N}}\n`;
