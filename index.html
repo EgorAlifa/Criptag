@@ -460,87 +460,117 @@
     </div>
 
     <script>
-        function modularExponentiation(base, exp, mod) {
-            let result = 1;
-            base = base % mod;
-            while (exp > 0) {
-                if (exp % 2 === 1) {
-                    result = (result * base) % mod;
-                }
-                exp = Math.floor(exp / 2);
-                base = (base * base) % mod;
-            }
-            return result;
-        }
+function modularExponentiation(base, exp, mod, showSteps = false) {
+    let result = 1;
+    let steps = '';
+    let tempResults = { 0: 1 }; // Сохраняем 2^0 = 1
 
-        function calculateWithSteps() {
-            const expressionInput = document.getElementById('expression');
-            const xaInput = document.getElementById('xa');
-            const xbInput = document.getElementById('xb');
-            const solutionSteps = document.getElementById('solution-steps');
-            const errorDiv = document.getElementById('error');
-            
-            try {
-                const expression = expressionInput.value;
-                const xa = parseInt(xaInput.value);
-                const xb = parseInt(xbInput.value);
-                
-                // Parse base and modulus from expression
-                const matches = expression.match(/(\d+)\^x\s*mod\s*(\d+)/);
-                if (!matches) {
-                    throw new Error('Invalid expression format');
-                }
-
-                const base = parseInt(matches[1]);
-                const mod = parseInt(matches[2]);
-
-                if (isNaN(xa) || isNaN(xb)) {
-                    throw new Error('Please enter valid XA and XB values');
-                }
-
-                // Calculate results and format steps
-                let steps = `Task 1\n`;
-                steps += `1) y = ${base}^x mod ${mod}\n`;
-                steps += `2) XA = ${xa}, XB = ${xb}\n\n`;
-
-                // Calculate yA
-                let yA = modularExponentiation(base, xa, mod);
-                steps += `A: yA = ${base}^${xa} mod ${mod} = ${yA}\n`;
-
-                // Calculate yB
-                let yB = modularExponentiation(base, xb, mod);
-                steps += `B: yB = ${base}^${xb} mod ${mod} = ${yB}\n\n`;
-
-                // Calculate KAB
-                steps += `3) A: yA → B\n`;
-                steps += `   B: yB → A\n\n`;
-
-                // Calculate final key for A
-                let kAB_A = modularExponentiation(yB, xa, mod);
-                steps += `4) A: ${yB}^${xa} mod ${mod} = ${kAB_A}\n`;
-
-                // Calculate final key for B
-                let kAB_B = modularExponentiation(yA, xb, mod);
-                steps += `   B: ${yA}^${xb} mod ${mod} = ${kAB_B}\n\n`;
-
-                steps += `KAB = ${kAB_A}`;
-
-                solutionSteps.textContent = steps;
-                solutionSteps.style.display = 'block';
-                errorDiv.textContent = '';
-                
-            } catch (err) {
-                errorDiv.textContent = err.message || 'Please check your input format';
-                solutionSteps.style.display = 'none';
+    if (showSteps) {
+        steps = `${base}^${exp} mod ${mod} = `;
+        
+        // Разложение степени на сумму степеней двойки
+        let binaryExp = exp.toString(2);
+        let powers = [];
+        for (let i = 0; i < binaryExp.length; i++) {
+            if (binaryExp[i] === '1') {
+                powers.push(binaryExp.length - 1 - i);
             }
         }
 
-        // Add keyboard support
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                calculateWithSteps();
+        // Вычисляем промежуточные значения
+        let currentValue = base;
+        for (let i = 0; i <= Math.max(...powers); i++) {
+            tempResults[i] = currentValue;
+            currentValue = (currentValue * currentValue) % mod;
+        }
+
+        // Собираем строку разложения и произведения
+        let decomposition = powers.map(p => `${base}^${Math.pow(2, p)}`).join(' · ');
+        steps += decomposition + ` mod ${mod} = `;
+        
+        let products = [];
+        result = 1;
+        for (let power of powers) {
+            result = (result * tempResults[power]) % mod;
+            products.push(tempResults[power]);
+        }
+
+        steps += products.join(' · ') + ` mod ${mod} = ${result}`;
+    } else {
+        while (exp > 0) {
+            if (exp % 2 === 1) {
+                result = (result * base) % mod;
             }
-        });
+            exp = Math.floor(exp / 2);
+            base = (base * base) % mod;
+        }
+    }
+
+    return { result, steps };
+}
+
+function calculateWithSteps() {
+    const expressionInput = document.getElementById('expression');
+    const xaInput = document.getElementById('xa');
+    const xbInput = document.getElementById('xb');
+    const solutionSteps = document.getElementById('solution-steps');
+    const errorDiv = document.getElementById('error');
+    
+    try {
+        const expression = expressionInput.value;
+        const xa = parseInt(xaInput.value);
+        const xb = parseInt(xbInput.value);
+        
+        const matches = expression.match(/(\d+)\^x\s*mod\s*(\d+)/);
+        if (!matches) {
+            throw new Error('Invalid expression format');
+        }
+
+        const base = parseInt(matches[1]);
+        const mod = parseInt(matches[2]);
+
+        if (isNaN(xa) || isNaN(xb)) {
+            throw new Error('Please enter valid XA and XB values');
+        }
+
+        let steps = `Задание №1\n`;
+        steps += `1) y = ${base}^x mod ${mod}\n`;
+        steps += `   XA = ${xa}, XB = ${xb}\n\n`;
+
+        const yACalc = modularExponentiation(base, xa, mod, true);
+        steps += `2) A: yA = ${yACalc.steps}\n\n`;
+
+        const yBCalc = modularExponentiation(base, xb, mod, true);
+        steps += `B: yB = ${yBCalc.steps}\n\n`;
+
+        steps += `3) A: yA → B\n`;
+        steps += `   B: yB → A\n\n`;
+
+        const kABCalcA = modularExponentiation(yBCalc.result, xa, mod, true);
+        steps += `4)A: Kab: ${kABCalcA.steps}\n`;
+
+        const kABCalcB = modularExponentiation(yACalc.result, xb, mod, true);
+        steps += `B: Kba: ${kABCalcB.steps}\n\n`;
+
+        steps += `Kab=Kba = ${kABCalcA.result} - Общий секретный ключ`;
+
+        solutionSteps.textContent = steps;
+        solutionSteps.style.display = 'block';
+        errorDiv.textContent = '';
+        
+    } catch (err) {
+        errorDiv.textContent = err.message || 'Please check your input format';
+        solutionSteps.style.display = 'none';
+    }
+}
+
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        calculateWithSteps();
+    }
+});
+
+
  // Номер 2 начинается тут
  function extendedGCD(a, b) {
     if (b === 0) {
@@ -555,27 +585,30 @@
 }
 
 function findSmallestD(phiN) {
-    // Начинаем с e = 3, так как это наименьшее простое число больше 2
     let e = 3;
     let smallestD = Infinity;
     let finalE = null;
-    
-    // Проверяем первые несколько значений e для поиска минимального d
-    while (e < Math.min(100, phiN)) {  // Ограничиваем поиск для эффективности
+    let selectionSteps = `Процесс выбора e и d:\n\n`;
+
+    while (e < Math.min(100, phiN)) {
         if (gcd(e, phiN) === 1) {
             const [g, x, y] = extendedGCD(e, phiN);
             let d = (x % phiN + phiN) % phiN;
-            
+
             if (d < smallestD) {
                 smallestD = d;
                 finalE = e;
+                selectionSteps += `e = ${e}: gcd(${e}, ${phiN}) = 1, d = ${d}\n`;
+                selectionSteps += `Ищем найменьшую d\n`;
             }
         }
         e = nextPrime(e);
     }
-    
-    return [finalE, smallestD];
+
+    selectionSteps += `\nИтоговый выбор: e = ${finalE}, d = ${smallestD}\n`;
+    return [finalE, smallestD, selectionSteps];
 }
+
 
 function gcd(a, b) {
     while (b !== 0) {
@@ -590,7 +623,7 @@ function isPrime(num) {
     if (num <= 1) return false;
     if (num <= 3) return true;
     if (num % 2 === 0 || num % 3 === 0) return false;
-    
+
     for (let i = 5; i * i <= num; i += 6) {
         if (num % i === 0 || num % (i + 2) === 0) return false;
     }
@@ -605,17 +638,31 @@ function nextPrime(n) {
     return next;
 }
 
-function modPow(base, exp, mod) {
+function modularExponentiationWithSteps(base, exp, mod) {
     let result = 1;
-    base = base % mod;
-    while (exp > 0) {
+    let steps = `${base}^${exp} mod ${mod} = `;
+
+    let currentValue = base;
+    let tempResults = { 0: 1 };
+    let powers = [];
+
+    for (let i = 0; exp > 0; i++) {
         if (exp % 2 === 1) {
-            result = (result * base) % mod;
+            powers.push(i);
         }
+        tempResults[i] = currentValue;
+        currentValue = (currentValue * currentValue) % mod;
         exp = Math.floor(exp / 2);
-        base = (base * base) % mod;
     }
-    return result;
+
+    let decomposition = powers.map(p => `${base}^${Math.pow(2, p)}`).join(' · ');
+    steps += decomposition + ` mod ${mod} = `;
+
+    result = powers.reduce((acc, p) => (acc * tempResults[p]) % mod, 1);
+    let products = powers.map(p => tempResults[p]).join(' · ');
+
+    steps += products + ` mod ${mod} = ${result}`;
+    return { result, steps };
 }
 
 function calculateRSA() {
@@ -631,49 +678,38 @@ function calculateRSA() {
         }
 
         const mArray = mValue.split(',').map(x => parseInt(x.trim()));
-        
         let steps = `Task 2\n`;
         steps += `14) p = ${pValue}, q = ${qValue}, m = ${mArray.join(',')}\n\n`;
-        
-        // Вычисляем N и φ(N)
+
         const N = pValue * qValue;
         const phiN = (pValue - 1) * (qValue - 1);
-        
-        steps += `a) Формируем PKA и SKA\n`;
+        steps += `a) Формируем PK_A и SK_A\n`;
         steps += `N = p·q = ${N}\n`;
         steps += `φ(N) = (p-1)(q-1) = ${phiN}\n\n`;
 
-        // Находим оптимальные e и d
-        const [e, d] = findSmallestD(phiN);
+        const [e, d, selectionSteps] = findSmallestD(phiN);
+        steps += selectionSteps + '\n';
+        steps += `PK_A = {${e}, ${N}} - Публичный ключ\n`;
+        steps += `SK_A = ${d} - Секретный ключ\n\n`;
 
-        steps += `Выбираем оптимальные значения:\n`;
-        steps += `e = ${e}\n`;
-        steps += `d = ${d}\n\n`;
-
-        steps += `PKA = {${e}, ${N}}\n`;
-        steps += `SKA = ${d}\n\n`;
-
-        // Вычисляем h(m)
         const hm = mArray.reduce((a, b) => a + b, 0) % 8;
         steps += `б) A: формирует эл. подпись\n`;
         steps += `m = ${mArray.join(',')} => h(m) = Σ(${mArray.join('+')}) mod 8 = ${hm}\n`;
-        
-        // Вычисляем подпись
-        let sign = modPow(hm, d, N);
-        
-        steps += `SignA(m) = (h(m))^d mod N\n`;
-        steps += `SignA(m) = ${hm}^${d} mod ${N} = ${sign}\n\n`;
-        
-        steps += `Получается, что отправляем:\n`;
-        steps += `(${mArray.join(',')}, ${sign}) → B\n\n`;
 
-        // Проверяем подпись
-        const verifyResult = modPow(sign, e, N);
+        const signCalc = modularExponentiationWithSteps(hm, d, N);
+        steps += `SignA(m) = (h(m))^d mod N\n`;
+        steps += `SignA(m) = ${signCalc.steps}\n\n`;
+
+        steps += `Получается, что отправляем:\n`;
+        steps += `(${mArray.join(',')}; ${signCalc.result}) → B\n\n`;
+
         steps += `в) Проверка подписи:\n`;
         steps += `   а) h(m') = ${hm}\n`;
-        steps += `   б) (signA)^e mod N = ${verifyResult}\n\n`;
-        
-        if (verifyResult === hm) {
+
+        const verifyCalc = modularExponentiationWithSteps(signCalc.result, e, N);
+        steps += `   б) (signA)^e mod N = ${verifyCalc.steps}\n\n`;
+
+        if (verifyCalc.result === hm) {
             steps += `Так как h(m') = h(m) = ${hm} =>\n`;
             steps += `документ подлинный`;
         } else {
@@ -688,6 +724,13 @@ function calculateRSA() {
         solution.style.display = 'none';
     }
 }
+
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        calculateRSA();
+    }
+});
+
  // Номер 3 начинается тут
 
  function calculateKnapsack() {
@@ -778,7 +821,7 @@ function calculateRSA() {
         // Разложение T + 1 на два простых числа
         const [prime1, prime2] = factorize(T);
         if (!prime1 || !prime2) {
-            throw new Error('Невозможно разложить T + 1 на два простых числа');
+            throw new Error('Невозможно разложить T + 1 на два простых числа. P.S Нажимай на кнопку до тех пор, пока не выйдет решение.');
         }
 
         // Используем найденные простые числа для R и S
@@ -861,8 +904,8 @@ function calculateRSA() {
             }
         }
 
-        steps += `M = ${M}\n`;
-        steps += `C2 = `;
+        steps += `M = ${M.split('').reverse().join('')}\n`;
+        steps += `C_2 = `;
         let firstTerm = true;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -873,20 +916,20 @@ function calculateRSA() {
         }
         steps += ` = ${C2}\n`;
 
-        steps += `\n4) Расшифровка: Проверяем восстановление M с C2 и S\n`;
+        steps += `\n4) Расшифровка: Проверяем восстановление M с C_2 и S\n`;
 
         let sum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-        steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
+        steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
         for (let i = 4; i >= 0; i--) {
             if (sum_ai >= BigInt(numericValues[i])) {
                 recovered_M = '1' + recovered_M;
                 sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем b${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
             } else {
                 recovered_M = '0' + recovered_M;
-                steps += `b${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
@@ -909,7 +952,7 @@ function calculateRSA() {
             }
 
             steps += `Попробуем другое сообщение M = ${M}\n`;
-            steps += `C2 = `;
+            steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
                 if (M[i] === '1') {
@@ -921,7 +964,7 @@ function calculateRSA() {
             steps += ` = ${C2}\n`;
 
             let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
 
             sum_ai = newSum_ai;
             recovered_M = '';
@@ -1137,7 +1180,7 @@ function calculateKnapsackJunior() {
         }
 
         steps += `M = ${M}\n`;
-        steps += `C2 = `;
+        steps += `C_2 = `;
         let firstTerm = true;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -1148,20 +1191,20 @@ function calculateKnapsackJunior() {
         }
         steps += ` = ${C2}\n`;
 
-        steps += `\n4) Расшифровка: Проверяем восстановление M с C2 и S\n`;
+        steps += `\n4) Расшифровка: Проверяем восстановление M с C_2 и S\n`;
 
         let sum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-        steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
+        steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
         for (let i = 4; i >= 0; i--) {
             if (sum_ai >= BigInt(numericValues[i])) {
                 recovered_M = '1' + recovered_M;
                 sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем b${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
             } else {
                 recovered_M = '0' + recovered_M;
-                steps += `b${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
@@ -1352,7 +1395,7 @@ function calculateKnapsackJunior() {
         }
 
         steps += `M = ${M}\n`;
-        steps += `C2 = `;
+        steps += `C_2 = `;
         let firstTerm = true;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -1363,20 +1406,20 @@ function calculateKnapsackJunior() {
         }
         steps += ` = ${C2}\n`;
 
-        steps += `\n4) Расшифровка: Проверяем восстановление M с C2 и S\n`;
+        steps += `\n4) Расшифровка: Проверяем восстановление M с C_2 и S\n`;
 
         let sum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-        steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
+        steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
         for (let i = 4; i >= 0; i--) {
             if (sum_ai >= BigInt(numericValues[i])) {
                 recovered_M = '1' + recovered_M;
                 sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем b${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
             } else {
                 recovered_M = '0' + recovered_M;
-                steps += `b${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
@@ -1399,7 +1442,7 @@ function calculateKnapsackJunior() {
             }
 
             steps += `Попробуем другое сообщение M = ${M}\n`;
-            steps += `C2 = `;
+            steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
                 if (M[i] === '1') {
@@ -1411,7 +1454,7 @@ function calculateKnapsackJunior() {
             steps += ` = ${C2}\n`;
 
             let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
 
             sum_ai = newSum_ai;
             recovered_M = '';
@@ -1615,7 +1658,7 @@ function calculateKnapsackFor5Modified() {
         }
 
         steps += `M = ${M}\n`;
-        steps += `C2 = `;
+        steps += `C_2 = `;
         let firstTerm = true;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -1626,20 +1669,20 @@ function calculateKnapsackFor5Modified() {
         }
         steps += ` = ${C2}\n`;
 
-        steps += `\n4) Расшифровка: Проверяем восстановление M с C2 и S\n`;
+        steps += `\n4) Расшифровка: Проверяем восстановление M с C_2 и S\n`;
 
         let sum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-        steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
+        steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
         for (let i = 4; i >= 0; i--) {
             if (sum_ai >= BigInt(numericValues[i])) {
                 recovered_M = '1' + recovered_M;
                 sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем b${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
             } else {
                 recovered_M = '0' + recovered_M;
-                steps += `b${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
@@ -1660,7 +1703,7 @@ function calculateKnapsackFor5Modified() {
             }
 
             steps += `Попробуем другое сообщение M = ${M}\n`;
-            steps += `C2 = `;
+            steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
                 if (M[i] === '1') {
@@ -1672,7 +1715,7 @@ function calculateKnapsackFor5Modified() {
             steps += ` = ${C2}\n`;
 
             let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
 
             sum_ai = newSum_ai;
             recovered_M = '';
@@ -1869,7 +1912,7 @@ function calculateKnapsackFor3Lower() {
         }
 
         steps += `M = ${M}\n`;
-        steps += `C2 = `;
+        steps += `C_2 = `;
         let firstTerm = true;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -1880,20 +1923,20 @@ function calculateKnapsackFor3Lower() {
         }
         steps += ` = ${C2}\n`;
 
-        steps += `\n4) Расшифровка: Проверяем восстановление M с C2 и S\n`;
+        steps += `\n4) Расшифровка: Проверяем восстановление M с C_2 и S\n`;
 
         let sum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-        steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
+        steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
         for (let i = 4; i >= 0; i--) {
             if (sum_ai >= BigInt(numericValues[i])) {
                 recovered_M = '1' + recovered_M;
                 sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем b${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
             } else {
                 recovered_M = '0' + recovered_M;
-                steps += `b${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
@@ -1914,7 +1957,7 @@ function calculateKnapsackFor3Lower() {
             }
 
             steps += `Попробуем другое сообщение M = ${M}\n`;
-            steps += `C2 = `;
+            steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
                 if (M[i] === '1') {
@@ -1926,7 +1969,7 @@ function calculateKnapsackFor3Lower() {
             steps += ` = ${C2}\n`;
 
             let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
 
             sum_ai = newSum_ai;
             recovered_M = '';
@@ -2123,7 +2166,7 @@ function calculateKnapsackFor3Upper() {
         }
 
         steps += `M = ${M}\n`;
-        steps += `C2 = `;
+        steps += `C_2 = `;
         let firstTerm = true;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -2134,20 +2177,20 @@ function calculateKnapsackFor3Upper() {
         }
         steps += ` = ${C2}\n`;
 
-        steps += `\n4) Расшифровка: Проверяем восстановление M с C2 и S\n`;
+        steps += `\n4) Расшифровка: Проверяем восстановление M с C_2 и S\n`;
 
         let sum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-        steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
+        steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
         for (let i = 4; i >= 0; i--) {
             if (sum_ai >= BigInt(numericValues[i])) {
                 recovered_M = '1' + recovered_M;
                 sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем b${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
             } else {
                 recovered_M = '0' + recovered_M;
-                steps += `b${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
@@ -2168,7 +2211,7 @@ function calculateKnapsackFor3Upper() {
             }
 
             steps += `Попробуем другое сообщение M = ${M}\n`;
-            steps += `C2 = `;
+            steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
                 if (M[i] === '1') {
@@ -2180,7 +2223,7 @@ function calculateKnapsackFor3Upper() {
             steps += ` = ${C2}\n`;
 
             let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C2·S mod T = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
 
             sum_ai = newSum_ai;
             recovered_M = '';
@@ -2352,21 +2395,6 @@ function modExp(base, exp, mod) {
     return result;
 }
     </script>
-        <script type="text/javascript" >
-            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-         
-            ym(99581098, "init", {
-                 clickmap:true,
-                 trackLinks:true,
-                 accurateTrackBounce:true,
-                 webvisor:true
-            });
-         </script>
-         <noscript><div><img src="https://mc.yandex.ru/watch/99581098" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-         <!-- /Yandex.Metrika counter -->
+    
 </body>
 </html>
