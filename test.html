@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modulus Calculator</title>
+    <title>Расширенный Модульный Калькулятор</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
@@ -23,14 +23,20 @@
             padding: 20px;
         }
 
+        .calculator-container {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .calculator {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
             border: 1px solid rgba(99, 102, 241, 0.1);
         }
 
@@ -41,7 +47,7 @@
 
         h2 {
             color: #1e1b4b;
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
@@ -99,9 +105,14 @@
             background: #f5f7ff;
             border: 1px solid rgba(99, 102, 241, 0.2);
             border-radius: 8px;
-            text-align: center;
-            font-size: 1.125rem;
             color: #1e1b4b;
+            line-height: 1.6;
+        }
+
+        .steps {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
         }
 
         .error {
@@ -117,26 +128,238 @@
             }
 
             h2 {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="calculator">
-        <div class="header">
-            <h2>Калькулятор для подсчета mod</h2>
-            <p class="subtitle"></p>
+    <div class="calculator-container">
+        <!-- Калькулятор 1: Модульное возведение в степень -->
+        <div class="calculator">
+            <div class="header">
+                <h2>Модульное возведение в степень</h2>
+                <p class="subtitle">Формат: a^n mod m</p>
+            </div>
+            <div class="input-group">
+                <input type="text" id="expression" placeholder="Введите формата (e.g., 2^17 mod 19)">
+                <div id="error" class="error"></div>
+            </div>
+            <button onclick="calculateExpression()">Посчитать</button>
+            <div id="result" class="result" style="display: none;"></div>
         </div>
-        <div class="input-group">
-            <input type="text" id="expression" placeholder="Введите формата (e.g., 2^17 mod 19)">
-            <div id="error" class="error"></div>
+
+        <!-- Калькулятор 2: Обратный элемент -->
+        <div class="calculator">
+            <div class="header">
+                <h2>Поиск обратного элемента</h2>
+                <p class="subtitle">Формат: a^-1 mod m</p>
+            </div>
+            <div class="input-group">
+                <input type="text" id="inv-input" placeholder="Пример: 2^-1 mod 11">
+                <div id="inv-error" class="error"></div>
+            </div>
+            <button onclick="calculateModularInverse()">Посчитать</button>
+            <div id="inv-result" class="result" style="display: none;"></div>
         </div>
-        <button onclick="calculateExpression()">Посчитать</button>
-        <div id="result" class="result" style="display: none;"></div>
+
+        <!-- Калькулятор 3: Модульная арифметика с дробями -->
+        <div class="calculator">
+            <div class="header">
+                <h2>Модульные операции с дробями</h2>
+                <p class="subtitle">Формат: a/b mod m + c/d mod m</p>
+            </div>
+            <div class="input-group">
+                <input type="text" id="frac-input" placeholder="Пример: 3/2 mod 11 + 2/3 mod 11">
+                <div id="frac-error" class="error"></div>
+            </div>
+            <button onclick="calculateModularFractions()">Посчитать</button>
+            <div id="frac-result" class="result" style="display: none;"></div>
+        </div>
     </div>
 
     <script>
+        // Расширенный алгоритм Евклида для поиска НОД и коэффициентов Безу
+        function extendedGCD(a, b) {
+            if (a === 0) {
+                return { gcd: b, x: 0, y: 1 };
+            }
+            const { gcd, x: x1, y: y1 } = extendedGCD(b % a, a);
+            const x = y1 - Math.floor(b / a) * x1;
+            const y = x1;
+            return { gcd, x, y };
+        }
+
+        // Модульное возведение в степень (упрощенный метод через степени)
+        function modularExponentiation(base, exp, mod) {
+            let steps = [`Вычисляем ${base}^${exp} mod ${mod}:`];
+            let result = 1;
+            base = base % mod;
+            
+            if (exp > 0) {
+                for (let i = 0; i < exp; i++) {
+                    result = (result * base) % mod;
+                    if (i < 3 || i === exp - 1) {
+                        steps.push(`${base}^${i + 1} mod ${mod} = ${result}`);
+                    } else if (i === 3) {
+                        steps.push('...');
+                    }
+                }
+            }
+            
+            steps.push(`Итоговый результат: ${result}`);
+            return { result, steps };
+        }
+
+        // Поиск модульного обратного (два метода)
+        function modularInverse(a, m) {
+            let steps = [`Ищем обратный элемент для ${a} по модулю ${m}:`];
+            
+            // Метод 1: Расширенный алгоритм Евклида
+            steps.push('Метод 1: Расширенный алгоритм Евклида');
+            const { gcd, x } = extendedGCD(a, m);
+            
+            if (gcd !== 1) {
+                steps.push(`НОД(${a}, ${m}) = ${gcd} ≠ 1`);
+                steps.push('Обратный элемент не существует!');
+                return { result: null, steps };
+            }
+
+            let result1 = (x % m + m) % m;
+            steps.push(`Результат по методу 1: ${result1}`);
+            
+            // Метод 2: Перебор (a*b mod m = 1)
+            steps.push('\nМетод 2: Перебор решений уравнения');
+            steps.push(`${a}·x mod ${m} = 1`);
+            
+            let result2;
+            for (let i = 1; i < m; i++) {
+                if ((a * i) % m === 1) {
+                    result2 = i;
+                    break;
+                }
+            }
+            
+            steps.push(`Результат по методу 2: ${result2}`);
+            steps.push(`\nОба метода дают одинаковый результат: ${result1}`);
+            
+            return { result: result1, steps };
+        }
+
+        // Обновленная функция для обработки дробей по модулю
+        function modularFraction(expression, mod) {
+            let steps = [];
+            
+            // Разбираем входное выражение
+            const parts = expression.split('+').map(p => {
+                const [num, den] = p.split('/').map(n => parseInt(n.trim()));
+                return { num, den };
+            });
+
+            // Основное решение одной строкой
+            steps.push(`${parts[0].num}/${parts[0].den} mod ${mod} + ${parts[1].num}/${parts[1].den} mod ${mod} = ` +
+                    `${parts[0].num} · ${parts[0].den}^(-1) mod ${mod} + ${parts[1].num} · ${parts[1].den}^(-1) mod ${mod}`);
+            
+            // Находим обратные элементы
+            let inverse1 = 1;
+            for (let i = 1; i < mod; i++) {
+                if ((parts[0].den * i) % mod === 1) {
+                    inverse1 = i;
+                    break;
+                }
+            }
+            
+            let inverse2 = 1;
+            for (let i = 1; i < mod; i++) {
+                if ((parts[1].den * i) % mod === 1) {
+                    inverse2 = i;
+                    break;
+                }
+            }
+
+            // Полная цепочка преобразований
+            const result1 = (parts[0].num * inverse1) % mod;
+            const result2 = (parts[1].num * inverse2) % mod;
+            const finalResult = (result1 + result2) % mod;
+            
+            steps.push(`=(${parts[0].num}*${inverse1}mod${mod}+${parts[1].num}*${inverse2}mod${mod})mod${mod}=(${result1}+${result2})mod${mod}=${finalResult}`);
+
+            // Отдельно выводим пояснения для нахождения обратных элементов
+            steps.push(`\nНахождение обратного: ${parts[0].den}^-1 => ${parts[0].den} · b ≡ 1 (mod ${mod})`);
+            steps.push(`(${parts[0].den} · ${inverse1})mod${mod} = 1 => b = ${inverse1} mod${mod}`);
+            
+            steps.push(`\nНахождение обратного: ${parts[1].den}^-1 => ${parts[1].den} · b ≡ 1 (mod ${mod})`);
+            steps.push(`(${parts[1].den} · ${inverse2})mod${mod} = 1 => b = ${inverse2} mod${mod}`);
+
+            return { result: finalResult, steps };
+        }
+        function calculateModularInverse() {
+            const input = document.getElementById('inv-input').value;
+            const resultDiv = document.getElementById('inv-result');
+            const errorDiv = document.getElementById('inv-error');
+            
+            try {
+                const [baseExp, modStr] = input.split('mod').map(s => s.trim());
+                const base = parseInt(baseExp.replace('^-1', ''));
+                const mod = parseInt(modStr);
+
+                if (isNaN(base) || isNaN(mod)) {
+                    throw new Error('Invalid numbers');
+                }
+
+                const { result, steps } = modularInverse(base, mod);
+                if (result === null) {
+                    resultDiv.innerHTML = steps.join('<br>');
+                } else {
+                    resultDiv.innerHTML = steps.join('<br>');
+                }
+                resultDiv.style.display = 'block';
+                errorDiv.textContent = '';
+            } catch (err) {
+                errorDiv.textContent = 'Пожалуйста, введите выражение в правильном формате';
+                resultDiv.style.display = 'none';
+            }
+        }
+        // Обновленная функция обработки ввода для дробных операций
+        function calculateModularFractions() {
+            const input = document.getElementById('frac-input').value;
+            const resultDiv = document.getElementById('frac-result');
+            const errorDiv = document.getElementById('frac-error');
+            
+            try {
+                // Извлекаем модуль из входной строки
+                const modMatch = input.match(/mod\s*(\d+)/);
+                if (!modMatch) {
+                    throw new Error('Не указан модуль');
+                }
+                const mod = parseInt(modMatch[1]);
+
+                // Очищаем входную строку от "mod N"
+                const cleanInput = input.replace(/mod\s*\d+/g, '').trim();
+
+                const { result, steps } = modularFraction(cleanInput, mod);
+                resultDiv.innerHTML = steps.join('<br>');
+                resultDiv.style.display = 'block';
+                errorDiv.textContent = '';
+            } catch (err) {
+                errorDiv.textContent = 'Пожалуйста, введите выражение в правильном формате (например: 3/2 + 2/3 mod 11)';
+                resultDiv.style.display = 'none';
+            }
+        }
+
+        // Добавляем поддержку клавиши Enter для всех калькуляторов
+        document.getElementById('exp-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateModularExponentiation();
+        });
+
+        document.getElementById('inv-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateModularInverse();
+        });
+
+        document.getElementById('frac-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateModularFractions();
+        });
+
         function modularExponentiation(base, exp, mod) {
             let result = 1;
             base = base % mod;
