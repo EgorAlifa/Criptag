@@ -533,7 +533,7 @@ function calculateWithSteps() {
             throw new Error('Please enter valid XA and XB values');
         }
 
-        let steps = `Задание №1\n`;
+        let steps = `Task 1\n`;
         steps += `1) y = ${base}^x mod ${mod}\n`;
         steps += `   XA = ${xa}, XB = ${xb}\n\n`;
 
@@ -589,19 +589,23 @@ function findValidD(phiN, p, q) {
     let solutions = [];
     let selectionSteps = `Процесс выбора e и d:\n\n`;
 
-    while (e < Math.min(100, phiN)) {
+    while (e < phiN) {
         if (gcd(e, phiN) === 1) {
             const [g, x, y] = extendedGCD(e, phiN);
             let d = (x % phiN + phiN) % phiN;
             
-            // Exclude cases where e = d
-            // Exclude specific cases for p=7,q=11 and p=3,q=11
-            const isInvalid = 
-                e === d || 
-                (p === 7 && q === 11 && (e === 43 || d === 43 || e === 7 || d === 7)) ||
-                (p === 3 && q === 11 && (e === 7 || d === 7 || e === 3 || d === 3));
+            // Все ограничения в одной проверке
+            const isValid = 
+                e !== d &&                    // e ≠ d
+                e !== p && e !== q &&         // e ≠ p,q
+                d !== p && d !== q &&         // d ≠ p,q
+                e > 1 && d > 1 &&            // e,d > 1
+                e < phiN && d < phiN &&      // e,d < φ(N)
+                (e * d) % phiN === 1 &&      // e*d ≡ 1 (mod φ(N))
+                !(p === 7 && q === 11 && (e === 43 || d === 43 || e === 7 || d === 7)) && // Особый случай 1
+                !(p === 3 && q === 11 && (e === 7 || d === 7 || e === 3 || d === 3));     // Особый случай 2
 
-            if (!isInvalid) {
+            if (isValid) {
                 solutions.push({ e, d });
                 selectionSteps += `e = ${e}: gcd(${e}, ${phiN}) = 1, d = ${d}\n`;
             }
@@ -609,7 +613,6 @@ function findValidD(phiN, p, q) {
         e = nextPrime(e);
     }
 
-    // Take a random valid pair instead of smallest d
     const chosenPair = solutions[Math.floor(Math.random() * solutions.length)];
     selectionSteps += `\nИтоговый выбор: e = ${chosenPair.e}, d = ${chosenPair.d}\n`;
     return [chosenPair.e, chosenPair.d, selectionSteps];
@@ -685,7 +688,13 @@ function calculateRSA() {
 
         const mArray = mValue.split(',').map(x => parseInt(x.trim()));
         let steps = `Task 2\n`;
-        steps += `14) p = ${pValue}, q = ${qValue}, m = ${mArray.join(',')}\n\n`;
+        steps += `Важно: Есть ограничения для e и d:
+e и d должны быть взаимно просты с φ(N)
+e и d не должны равняться друг другу
+e и d не должны совпадать со значениями p или q
+1 < e, d < φ(N)
+e * d ≡ 1 (mod φ(N))\n\n`;
+        steps += `1) p = ${pValue}, q = ${qValue}, m = ${mArray.join(',')}\n\n`;
         
 
         const N = pValue * qValue;
