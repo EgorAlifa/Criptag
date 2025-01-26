@@ -895,10 +895,19 @@ document.addEventListener('keypress', function(e) {
         steps += `\n3) Зашифруем сообщение M:\n`;
 
         let M = '';
-        for (let i = 0; i < 5; i++) {
-            M += Math.round(Math.random());
+        // Проверяем резервное сообщение
+        if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
+            M = backupM.split('').reverse().join('');
+            steps += `Используется резервное сообщение M = ${backupM}\n`;
+        } else {
+            // Если резервное сообщение не валидно, генерируем случайное
+            for (let i = 0; i < 5; i++) {
+                M += Math.round(Math.random());
+            }
+            steps += `Сгенерировано случайное сообщение M = ${M}\n`;
+        
         }
-
+         // Перемещаем вычисление C2 перед его использованием
         let C2 = 0;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -924,62 +933,58 @@ document.addEventListener('keypress', function(e) {
         steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
-        for (let i = 4; i >= 0; i--) {
-            if (sum_ai >= BigInt(numericValues[i])) {
-                recovered_M = '1' + recovered_M;
-                sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+        for (let i = 0; i < 5; i++) {
+            if (sum_ai >= BigInt(numericValues[4 - i])) {
+                recovered_M += '1';
+                sum_ai -= BigInt(numericValues[4 - i]);
+                steps += `Вычитаем a${4 - i} = ${numericValues[4 - i]}, остаток = ${sum_ai}\n`;
             } else {
-                recovered_M = '0' + recovered_M;
-                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                recovered_M += '0';
+                steps += `a${4 - i} = ${numericValues[4 - i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
-        steps += `Восстановленное M = ${recovered_M.split('').reverse().join('')}\n`;
-
-        if (recovered_M === M) {
-            steps += `Дешифрование прошло успешно!\n`;
-        } else {
-            if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
-                M = backupM; // Используем введенное резервное сообщение
-            } else {
-                M = '10001'; // Используем заведомо работающий вариант
+        steps += `Восстановленное M = ${recovered_M}\n`;
+        if (recovered_M !== M.split('').reverse().join('')) {
+            let alternateM = '';
+            for (let i = 0; i < 5; i++) {
+                alternateM += Math.round(Math.random());
             }
 
-            C2 = 0;
+            steps += `Попробуем другое случайное сообщение M = ${alternateM}\n`;
+
+            let alternateC2 = 0;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
-                    C2 += bValues[i];
+                if (alternateM[i] === '1') {
+                    alternateC2 += bValues[i];
                 }
             }
 
-            steps += `Попробуем другое сообщение M = ${M}\n`;
             steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
+                if (alternateM[i] === '1') {
                     if (!firstTerm) steps += ' + ';
                     steps += `${bValues[i]}`;
                     firstTerm = false;
                 }
             }
-            steps += ` = ${C2}\n`;
+            steps += ` = ${alternateC2}\n`;
 
-            let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            let alternateSum_ai = BigInt(alternateC2) * BigInt(adjustedS) % BigInt(T);
+            steps += `C_2·S (mod T) = ${alternateC2}·${adjustedS} mod ${T} = ${alternateSum_ai}\n`;
 
-            sum_ai = newSum_ai;
-            recovered_M = '';
-            for (let i = 4; i >= 0; i--) {
-                if (sum_ai >= BigInt(numericValues[i])) {
-                    recovered_M = '1' + recovered_M;
-                    sum_ai -= BigInt(numericValues[i]);
+            let alternateRecovered_M = '';
+            for (let i = 0; i < 5; i++) {
+                if (alternateSum_ai >= BigInt(numericValues[i])) {
+                    alternateRecovered_M += '1';
+                    alternateSum_ai -= BigInt(numericValues[i]);
                 } else {
-                    recovered_M = '0' + recovered_M;
+                    alternateRecovered_M += '0';
                 }
             }
 
-            steps += `Восстановленное M = ${recovered_M}\n`;
+            steps += `Восстановленное M = ${alternateRecovered_M}\n`;
         }
 
         solution.textContent = steps;
@@ -1167,21 +1172,25 @@ function calculateKnapsackJunior() {
         steps += `\n3) Зашифруем сообщение M:\n`;
 
         let M = '';
+        // Проверяем резервное сообщение
         if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
-            M = backupM;
+            M = backupM.split('').reverse().join('');
+            steps += `Используется резервное сообщение M = ${backupM}\n`;
         } else {
+            // Если резервное сообщение не валидно, генерируем случайное
             for (let i = 0; i < 5; i++) {
                 M += Math.round(Math.random());
             }
+            steps += `Сгенерировано случайное сообщение M = ${M}\n`;
+        
         }
-
+         // Перемещаем вычисление C2 перед его использованием
         let C2 = 0;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
                 C2 += bValues[i];
             }
         }
-
         steps += `M = ${M.split('').reverse().join('')}\n`;
         steps += `C_2 = `;
         let firstTerm = true;
@@ -1387,10 +1396,19 @@ function calculateKnapsackJunior() {
         steps += `\n3) Зашифруем сообщение M:\n`;
 
         let M = '';
-        for (let i = 0; i < 5; i++) {
-            M += Math.round(Math.random());
+        // Проверяем резервное сообщение
+        if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
+            M = backupM.split('').reverse().join('');
+            steps += `Используется резервное сообщение M = ${backupM}\n`;
+        } else {
+            // Если резервное сообщение не валидно, генерируем случайное
+            for (let i = 0; i < 5; i++) {
+                M += Math.round(Math.random());
+            }
+            steps += `Сгенерировано случайное сообщение M = ${M}\n`;
+        
         }
-
+         // Перемещаем вычисление C2 перед его использованием
         let C2 = 0;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -1416,62 +1434,58 @@ function calculateKnapsackJunior() {
         steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
-        for (let i = 4; i >= 0; i--) {
-            if (sum_ai >= BigInt(numericValues[i])) {
-                recovered_M = '1' + recovered_M;
-                sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+        for (let i = 0; i < 5; i++) {
+            if (sum_ai >= BigInt(numericValues[4 - i])) {
+                recovered_M += '1';
+                sum_ai -= BigInt(numericValues[4 - i]);
+                steps += `Вычитаем a${4 - i} = ${numericValues[4 - i]}, остаток = ${sum_ai}\n`;
             } else {
-                recovered_M = '0' + recovered_M;
-                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                recovered_M += '0';
+                steps += `a${4 - i} = ${numericValues[4 - i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
-        steps += `Восстановленное M = ${recovered_M.split('').reverse().join('')}\n`;
-
-        if (recovered_M === M) {
-            steps += `Дешифрование прошло успешно!\n`;
-        } else {
-            if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
-                M = backupM;
-            } else {
-                M = '10001';
+        steps += `Восстановленное M = ${recovered_M}\n`;
+        if (recovered_M !== M.split('').reverse().join('')) {
+            let alternateM = '';
+            for (let i = 0; i < 5; i++) {
+                alternateM += Math.round(Math.random());
             }
 
-            C2 = 0;
+            steps += `Попробуем другое случайное сообщение M = ${alternateM}\n`;
+
+            let alternateC2 = 0;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
-                    C2 += bValues[i];
+                if (alternateM[i] === '1') {
+                    alternateC2 += bValues[i];
                 }
             }
 
-            steps += `Попробуем другое сообщение M = ${M}\n`;
             steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
+                if (alternateM[i] === '1') {
                     if (!firstTerm) steps += ' + ';
                     steps += `${bValues[i]}`;
                     firstTerm = false;
                 }
             }
-            steps += ` = ${C2}\n`;
+            steps += ` = ${alternateC2}\n`;
 
-            let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            let alternateSum_ai = BigInt(alternateC2) * BigInt(adjustedS) % BigInt(T);
+            steps += `C_2·S (mod T) = ${alternateC2}·${adjustedS} mod ${T} = ${alternateSum_ai}\n`;
 
-            sum_ai = newSum_ai;
-            recovered_M = '';
-            for (let i = 4; i >= 0; i--) {
-                if (sum_ai >= BigInt(numericValues[i])) {
-                    recovered_M = '1' + recovered_M;
-                    sum_ai -= BigInt(numericValues[i]);
+            let alternateRecovered_M = '';
+            for (let i = 0; i < 5; i++) {
+                if (alternateSum_ai >= BigInt(numericValues[i])) {
+                    alternateRecovered_M += '1';
+                    alternateSum_ai -= BigInt(numericValues[i]);
                 } else {
-                    recovered_M = '0' + recovered_M;
+                    alternateRecovered_M += '0';
                 }
             }
 
-            steps += `Восстановленное M = ${recovered_M}\n`;
+            steps += `Восстановленное M = ${alternateRecovered_M}\n`;
         }
 
         solution.textContent = steps;
@@ -1651,10 +1665,19 @@ function calculateKnapsackFor5Modified() {
         steps += `\n3) Зашифруем сообщение M:\n`;
 
         let M = '';
-        for (let i = 0; i < 5; i++) {
-            M += Math.round(Math.random());
+        // Проверяем резервное сообщение
+        if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
+            M = backupM.split('').reverse().join('');
+            steps += `Используется резервное сообщение M = ${backupM}\n`;
+        } else {
+            // Если резервное сообщение не валидно, генерируем случайное
+            for (let i = 0; i < 5; i++) {
+                M += Math.round(Math.random());
+            }
+            steps += `Сгенерировано случайное сообщение M = ${M}\n`;
+        
         }
-
+         // Перемещаем вычисление C2 перед его использованием
         let C2 = 0;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -1680,60 +1703,58 @@ function calculateKnapsackFor5Modified() {
         steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
-        for (let i = 4; i >= 0; i--) {
-            if (sum_ai >= BigInt(numericValues[i])) {
-                recovered_M = '1' + recovered_M;
-                sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+        for (let i = 0; i < 5; i++) {
+            if (sum_ai >= BigInt(numericValues[4 - i])) {
+                recovered_M += '1';
+                sum_ai -= BigInt(numericValues[4 - i]);
+                steps += `Вычитаем a${4 - i} = ${numericValues[4 - i]}, остаток = ${sum_ai}\n`;
             } else {
-                recovered_M = '0' + recovered_M;
-                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                recovered_M += '0';
+                steps += `a${4 - i} = ${numericValues[4 - i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
-        steps += `Восстановленное M = ${recovered_M.split('').reverse().join('')}\n`;
-
-        if (recovered_M !== M) {
-            if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
-                M = backupM;
-            } else {
-                M = '10001';
+        steps += `Восстановленное M = ${recovered_M}\n`;
+        if (recovered_M !== M.split('').reverse().join('')) {
+            let alternateM = '';
+            for (let i = 0; i < 5; i++) {
+                alternateM += Math.round(Math.random());
             }
 
-            C2 = 0;
+            steps += `Попробуем другое случайное сообщение M = ${alternateM}\n`;
+
+            let alternateC2 = 0;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
-                    C2 += bValues[i];
+                if (alternateM[i] === '1') {
+                    alternateC2 += bValues[i];
                 }
             }
 
-            steps += `Попробуем другое сообщение M = ${M}\n`;
             steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
+                if (alternateM[i] === '1') {
                     if (!firstTerm) steps += ' + ';
                     steps += `${bValues[i]}`;
                     firstTerm = false;
                 }
             }
-            steps += ` = ${C2}\n`;
+            steps += ` = ${alternateC2}\n`;
 
-            let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            let alternateSum_ai = BigInt(alternateC2) * BigInt(adjustedS) % BigInt(T);
+            steps += `C_2·S (mod T) = ${alternateC2}·${adjustedS} mod ${T} = ${alternateSum_ai}\n`;
 
-            sum_ai = newSum_ai;
-            recovered_M = '';
-            for (let i = 4; i >= 0; i--) {
-                if (sum_ai >= BigInt(numericValues[i])) {
-                    recovered_M = '1' + recovered_M;
-                    sum_ai -= BigInt(numericValues[i]);
+            let alternateRecovered_M = '';
+            for (let i = 0; i < 5; i++) {
+                if (alternateSum_ai >= BigInt(numericValues[i])) {
+                    alternateRecovered_M += '1';
+                    alternateSum_ai -= BigInt(numericValues[i]);
                 } else {
-                    recovered_M = '0' + recovered_M;
+                    alternateRecovered_M += '0';
                 }
             }
 
-            steps += `Восстановленное M = ${recovered_M}\n`;
+            steps += `Восстановленное M = ${alternateRecovered_M}\n`;
         }
 
         solution.textContent = steps;
@@ -1906,10 +1927,19 @@ function calculateKnapsackFor3Lower() {
         steps += `\n3) Зашифруем сообщение M:\n`;
 
         let M = '';
-        for (let i = 0; i < 5; i++) {
-            M += Math.round(Math.random());
+        // Проверяем резервное сообщение
+        if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
+            M = backupM.split('').reverse().join('');
+            steps += `Используется резервное сообщение M = ${backupM}\n`;
+        } else {
+            // Если резервное сообщение не валидно, генерируем случайное
+            for (let i = 0; i < 5; i++) {
+                M += Math.round(Math.random());
+            }
+            steps += `Сгенерировано случайное сообщение M = ${M}\n`;
+        
         }
-
+         // Перемещаем вычисление C2 перед его использованием
         let C2 = 0;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -1935,60 +1965,58 @@ function calculateKnapsackFor3Lower() {
         steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
-        for (let i = 4; i >= 0; i--) {
-            if (sum_ai >= BigInt(numericValues[i])) {
-                recovered_M = '1' + recovered_M;
-                sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+        for (let i = 0; i < 5; i++) {
+            if (sum_ai >= BigInt(numericValues[4 - i])) {
+                recovered_M += '1';
+                sum_ai -= BigInt(numericValues[4 - i]);
+                steps += `Вычитаем a${4 - i} = ${numericValues[4 - i]}, остаток = ${sum_ai}\n`;
             } else {
-                recovered_M = '0' + recovered_M;
-                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                recovered_M += '0';
+                steps += `a${4 - i} = ${numericValues[4 - i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
-        steps += `Восстановленное M = ${recovered_M.split('').reverse().join('')}\n`;
-
-        if (recovered_M !== M) {
-            if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
-                M = backupM;
-            } else {
-                M = '10001';
+        steps += `Восстановленное M = ${recovered_M}\n`;
+        if (recovered_M !== M.split('').reverse().join('')) {
+            let alternateM = '';
+            for (let i = 0; i < 5; i++) {
+                alternateM += Math.round(Math.random());
             }
 
-            C2 = 0;
+            steps += `Попробуем другое случайное сообщение M = ${alternateM}\n`;
+
+            let alternateC2 = 0;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
-                    C2 += bValues[i];
+                if (alternateM[i] === '1') {
+                    alternateC2 += bValues[i];
                 }
             }
 
-            steps += `Попробуем другое сообщение M = ${M}\n`;
             steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
+                if (alternateM[i] === '1') {
                     if (!firstTerm) steps += ' + ';
                     steps += `${bValues[i]}`;
                     firstTerm = false;
                 }
             }
-            steps += ` = ${C2}\n`;
+            steps += ` = ${alternateC2}\n`;
 
-            let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            let alternateSum_ai = BigInt(alternateC2) * BigInt(adjustedS) % BigInt(T);
+            steps += `C_2·S (mod T) = ${alternateC2}·${adjustedS} mod ${T} = ${alternateSum_ai}\n`;
 
-            sum_ai = newSum_ai;
-            recovered_M = '';
-            for (let i = 4; i >= 0; i--) {
-                if (sum_ai >= BigInt(numericValues[i])) {
-                    recovered_M = '1' + recovered_M;
-                    sum_ai -= BigInt(numericValues[i]);
+            let alternateRecovered_M = '';
+            for (let i = 0; i < 5; i++) {
+                if (alternateSum_ai >= BigInt(numericValues[i])) {
+                    alternateRecovered_M += '1';
+                    alternateSum_ai -= BigInt(numericValues[i]);
                 } else {
-                    recovered_M = '0' + recovered_M;
+                    alternateRecovered_M += '0';
                 }
             }
 
-            steps += `Восстановленное M = ${recovered_M}\n`;
+            steps += `Восстановленное M = ${alternateRecovered_M}\n`;
         }
 
         solution.textContent = steps;
@@ -2161,10 +2189,19 @@ function calculateKnapsackFor3Upper() {
         steps += `\n3) Зашифруем сообщение M:\n`;
 
         let M = '';
-        for (let i = 0; i < 5; i++) {
-            M += Math.round(Math.random());
+        // Проверяем резервное сообщение
+        if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
+            M = backupM.split('').reverse().join('');
+            steps += `Используется резервное сообщение M = ${backupM}\n`;
+        } else {
+            // Если резервное сообщение не валидно, генерируем случайное
+            for (let i = 0; i < 5; i++) {
+                M += Math.round(Math.random());
+            }
+            steps += `Сгенерировано случайное сообщение M = ${M}\n`;
+        
         }
-
+         // Перемещаем вычисление C2 перед его использованием
         let C2 = 0;
         for (let i = 0; i < 5; i++) {
             if (M[i] === '1') {
@@ -2190,66 +2227,63 @@ function calculateKnapsackFor3Upper() {
         steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${sum_ai}\n`;
 
         let recovered_M = '';
-        for (let i = 4; i >= 0; i--) {
-            if (sum_ai >= BigInt(numericValues[i])) {
-                recovered_M = '1' + recovered_M;
-                sum_ai -= BigInt(numericValues[i]);
-                steps += `Вычитаем a${i} = ${numericValues[i]}, остаток = ${sum_ai}\n`;
+        for (let i = 0; i < 5; i++) {
+            if (sum_ai >= BigInt(numericValues[4 - i])) {
+                recovered_M += '1';
+                sum_ai -= BigInt(numericValues[4 - i]);
+                steps += `Вычитаем a${4 - i} = ${numericValues[4 - i]}, остаток = ${sum_ai}\n`;
             } else {
-                recovered_M = '0' + recovered_M;
-                steps += `a${i} = ${numericValues[i]} не вычитается, остаток = ${sum_ai}\n`;
+                recovered_M += '0';
+                steps += `a${4 - i} = ${numericValues[4 - i]} не вычитается, остаток = ${sum_ai}\n`;
             }
         }
 
-        steps += `Восстановленное M = ${recovered_M.split('').reverse().join('')}\n`;
-
-        if (recovered_M !== M) {
-            if (backupM.length === 5 && /^[01]{5}$/.test(backupM)) {
-                M = backupM;
-            } else {
-                M = '10001';
+        steps += `Восстановленное M = ${recovered_M}\n`;
+        if (recovered_M !== M.split('').reverse().join('')) {
+            let alternateM = '';
+            for (let i = 0; i < 5; i++) {
+                alternateM += Math.round(Math.random());
             }
 
-            C2 = 0;
+            steps += `Попробуем другое случайное сообщение M = ${alternateM}\n`;
+
+            let alternateC2 = 0;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
-                    C2 += bValues[i];
+                if (alternateM[i] === '1') {
+                    alternateC2 += bValues[i];
                 }
             }
 
-            steps += `Попробуем другое сообщение M = ${M}\n`;
             steps += `C_2 = `;
             firstTerm = true;
             for (let i = 0; i < 5; i++) {
-                if (M[i] === '1') {
+                if (alternateM[i] === '1') {
                     if (!firstTerm) steps += ' + ';
                     steps += `${bValues[i]}`;
                     firstTerm = false;
                 }
             }
-            steps += ` = ${C2}\n`;
+            steps += ` = ${alternateC2}\n`;
 
-            let newSum_ai = BigInt(C2) * BigInt(adjustedS) % BigInt(T);
-            steps += `C_2·S (mod T) = ${C2}·${adjustedS} mod ${T} = ${newSum_ai}\n`;
+            let alternateSum_ai = BigInt(alternateC2) * BigInt(adjustedS) % BigInt(T);
+            steps += `C_2·S (mod T) = ${alternateC2}·${adjustedS} mod ${T} = ${alternateSum_ai}\n`;
 
-            sum_ai = newSum_ai;
-            recovered_M = '';
-            for (let i = 4; i >= 0; i--) {
-                if (sum_ai >= BigInt(numericValues[i])) {
-                    recovered_M = '1' + recovered_M;
-                    sum_ai -= BigInt(numericValues[i]);
+            let alternateRecovered_M = '';
+            for (let i = 0; i < 5; i++) {
+                if (alternateSum_ai >= BigInt(numericValues[i])) {
+                    alternateRecovered_M += '1';
+                    alternateSum_ai -= BigInt(numericValues[i]);
                 } else {
-                    recovered_M = '0' + recovered_M;
+                    alternateRecovered_M += '0';
                 }
             }
 
-            steps += `Восстановленное M = ${recovered_M}\n`;
+            steps += `Восстановленное M = ${alternateRecovered_M}\n`;
         }
 
         solution.textContent = steps;
         solution.style.display = 'block';
         error.textContent = '';
-
     } catch (err) {
         error.textContent = err.message;
         solution.style.display = 'none';
@@ -2403,21 +2437,6 @@ function modExp(base, exp, mod) {
 }
 
     </script>
-        <script type="text/javascript" >
-            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-            m[i].l=1*new Date();
-            for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-            k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-            (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-         
-            ym(99581098, "init", {
-                 clickmap:true,
-                 trackLinks:true,
-                 accurateTrackBounce:true,
-                 webvisor:true
-            });
-         </script>
-         <noscript><div><img src="https://mc.yandex.ru/watch/99581098" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-         <!-- /Yandex.Metrika counter -->
+    
 </body>
 </html>
