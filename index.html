@@ -247,7 +247,27 @@
                     <div id="solution-steps" class="solution-steps"></div>
                 </div>
             </div>
-
+            <!-- Task 1.1: Mod криптографии -->
+            <div class="task-card">
+                <h2 class="task-header">Task 1.1: Mod криптографии </h2>
+                <div class="task-content calculator">
+                    <div class="input-group">
+                        <label>Введите исходное y формата (2^x mod 19)</label>
+                        <input type="text" id="expression-1" placeholder="Например: 2^x mod 19">
+                    </div>
+                    <div class="input-group">
+                        <label>Xa значение</label>
+                        <input type="number" id="xa-1" placeholder="Например: 9">
+                    </div>
+                    <div class="input-group">
+                        <label>Xb значение</label>
+                        <input type="number" id="xb-1" placeholder="Например: 7">
+                    </div>
+                    <button onclick="calculateSymmetricDH()">Calculate</button>
+                    <div id="error-1" class="error"></div>
+                    <div id="solution-steps-1" class="solution-steps"></div>
+                </div>
+            </div>
             <!-- Task 2 Placeholder -->
            <div class="task-card">
                 <h2 class="task-header">Task 2: RSA Key Generation</h2>
@@ -569,7 +589,137 @@ document.addEventListener('keypress', function(e) {
         calculateWithSteps();
     }
 });
+//1.1 Номер начинается тут
 
+function symmetricDH(base, exp, mod, showSteps = false) {
+    let result = 1;
+    let steps = '';
+    let tempResults = { 0: 1 };
+
+    if (showSteps) {
+        steps = `${base}^${exp} mod ${mod} = `;
+        let binaryExp = exp.toString(2);
+        let powers = [];
+        for (let i = 0; i < binaryExp.length; i++) {
+            if (binaryExp[i] === '1') {
+                powers.push(binaryExp.length - 1 - i);
+            }
+        }
+
+        let currentValue = base;
+        for (let i = 0; i <= Math.max(...powers); i++) {
+            tempResults[i] = currentValue;
+            currentValue = (currentValue * currentValue) % mod;
+        }
+
+        let decomposition = powers.map(p => `${base}^${Math.pow(2, p)}`).join(' · ');
+        steps += decomposition + ` mod ${mod} = `;
+        
+        let products = [];
+        result = 1;
+        for (let power of powers) {
+            result = (result * tempResults[power]) % mod;
+            products.push(tempResults[power]);
+        }
+
+        steps += products.join(' · ') + ` mod ${mod} = ${result}`;
+    } else {
+        while (exp > 0) {
+            if (exp % 2 === 1) {
+                result = (result * base) % mod;
+            }
+            exp = Math.floor(exp / 2);
+            base = (base * base) % mod;
+        }
+    }
+
+    return { result, steps };
+}
+
+function trustedCenterLookup(table, value) {
+    // Ищем значение в таблице по результату yA или yB
+    return table[value] !== undefined ? table[value] : null;
+}
+
+function calculateSymmetricDH() {
+    const expressionInput = document.getElementById('expression-1');
+    const xaInput = document.getElementById('xa-1');
+    const xbInput = document.getElementById('xb-1');
+    const solutionSteps = document.getElementById('solution-steps-1');
+    const errorDiv = document.getElementById('error-1');
+    
+    try {
+        const expression = expressionInput.value;
+        const xa = parseInt(xaInput.value);
+        const xb = parseInt(xbInput.value);
+        
+        const matches = expression.match(/(\d+)\^x\s*mod\s*(\d+)/);
+        if (!matches) {
+            throw new Error('Invalid expression format');
+        }
+
+        const base = parseInt(matches[1]);
+        const mod = parseInt(matches[2]);
+
+        if (isNaN(xa) || isNaN(xb)) {
+            throw new Error('Please enter valid XA and XB values');
+        }
+
+        let steps = `Task 1.1: Symmetric DH with Trusted Center\n`;
+        steps += `1) y = ${base}^x mod ${mod}\n`;
+        steps += `   XA = ${xa}, XB = ${xb}\n\n`;
+
+        // Вычисления для A
+        const yACalc = symmetricDH(base, xa, mod, true);
+        steps += `2) A: yA = ${yACalc.steps}\n\n`;
+
+        // Вычисления для B
+        const yBCalc = symmetricDH(base, xb, mod, true);
+        steps += `B: yB = ${yBCalc.steps}\n\n`;
+
+        steps += `3) A: yA → B\n`;
+        steps += `   B: yB → A\n\n`;
+
+        // Вычисления общего секрета для A
+        const kABCalcA = symmetricDH(yBCalc.result, xa, mod, true);
+        steps += `4) A: Kab: ${kABCalcA.steps}\n`;
+
+        // Вычисления общего секрета для B
+        const kABCalcB = symmetricDH(yACalc.result, xb, mod, true);
+        steps += `B: Kba: ${kABCalcB.steps}\n\n`;
+
+        steps += `Kab = Kba = ${kABCalcA.result} - Общий секретный ключ\n\n`;
+        
+        // Создаем таблицу всех возможных значений для base^x mod mod
+        const secretTable = {};
+        for (let i = 0; i < mod; i++) {
+            const value = symmetricDH(base, i, mod).result;
+            secretTable[value] = i;  // Таблица результатов с их степенями
+        }
+        
+        // Восстановление XA и XB через доверенный центр
+        const recoveredXA = trustedCenterLookup(secretTable, yACalc.result);
+        const recoveredXB = trustedCenterLookup(secretTable, yBCalc.result);
+        
+        steps += `5) Доверенный центр восстанавливает секреты:\n`;
+        steps += `   - Для yA = ${yACalc.result} ищем степень xA в таблице:\n`;
+        steps += `     Таблица: [${Object.entries(secretTable).map(([key, value]) => `${key}: x=${value}`).join(', ')}]\n`;
+        steps += `     Найдено, что xA = ${recoveredXA} (и может быть несколько степеней с таким значением)\n\n`;
+
+        steps += `   - Для yB = ${yBCalc.result} ищем степень xB в таблице:\n`;
+        steps += `     Таблица: [${Object.entries(secretTable).map(([key, value]) => `${key}: x=${value}`).join(', ')}]\n`;
+        steps += `     Найдено, что xB = ${recoveredXB} (и может быть несколько степеней с таким значением)\n`;
+
+
+        solutionSteps.textContent = steps;
+        solutionSteps.style.display = 'block';
+        errorDiv.textContent = '';
+        
+    } catch (err) {
+        errorDiv.textContent = err.message || 'Please check your input format';
+        solutionSteps.style.display = 'none';
+    }
+}
 
  // Номер 2 начинается тут
  function extendedGCD(a, b) {
@@ -2467,5 +2617,6 @@ function modExp(base, exp, mod) {
             });
          </script>
          <noscript><div><img src="https://mc.yandex.ru/watch/99581098" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+         <!-- /Yandex.Metrika counter -->
 </body>
 </html>
